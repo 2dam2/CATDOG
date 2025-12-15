@@ -1,6 +1,6 @@
 // src/App.js
 import React, { useState } from "react";
-import { sendMessage } from "./api/axios";  // <- 상대 경로 주의
+import { sendMessage } from "./api/axios";
 
 function App() {
   const [input, setInput] = useState("");
@@ -9,7 +9,7 @@ function App() {
   const handleSend = async () => {
     try {
       const data = await sendMessage(input);
-      setReply(data.reply);   // 서버에서 온 reply 표시
+      setReply(data.reply);
     } catch (err) {
       console.error(err);
       setReply("요청 중 에러가 발생했습니다.");
@@ -17,15 +17,17 @@ function App() {
   };
 
   return (
-    <div>
+    <div style={{ padding: 20 }}>
       <h1>Flask 연동 테스트</h1>
       <input
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="메시지를 입력하세요"
+        style={{ width: 300, marginRight: 10 }}
       />
       <button onClick={handleSend}>보내기</button>
-      <p>서버 응답: {reply}</p>
+
+      <p style={{ marginTop: 20 }}>서버 응답: {reply}</p>
     </div>
   );
 }
