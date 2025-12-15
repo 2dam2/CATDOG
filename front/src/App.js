@@ -1,8 +1,12 @@
-// front/src/App.js
+
 import React, { useState } from "react";
+import Navbar from './components/Navbar';
+import PostForm from './components/PostForm';
 import { sendMessage } from "./api/axios";
+import './App.css'; // 기존 App.css를 유지하여 전체적인 스타일링 가능
 
 function App() {
+  const [isLogin, setIsLogin] = useState(false);
   const [input, setInput] = useState("");
   const [reply, setReply] = useState("");
 
@@ -18,23 +22,13 @@ function App() {
     }
   };
 
+  if (!isLogin) return <Login onLogin={() => setIsLogin(true)} />;
+
+
   return (
-    <div style={{ padding: "40px" }}>
-      <h2>React ↔ Flask 연동 테스트</h2>
-
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="메시지를 입력하세요"
-        style={{ width: "300px", marginRight: "10px" }}
-      />
-
-      <button onClick={handleSend}>보내기</button>
-
-      <p style={{ marginTop: "20px" }}>
-        <strong>서버 응답:</strong> {reply}
-      </p>
+    <div className="App">
+      <Navbar />
+      <PostForm />
     </div>
   );
 }
