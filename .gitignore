@@ -2,6 +2,7 @@
 .venv/
 __pycache__/
 *.db
+back/instance/*.db
 migrations/versions/
 .env
 img_naver
