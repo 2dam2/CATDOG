@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Row, Col, Container, Button } from 'react-bootstrap'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -9,23 +9,26 @@ import { CATEGORY_LABEL, CATEGORY_ORDER } from '../constants/category_name'
 
 // Route path = "/category/:pet/:sub?" element = { <Category items={products} />} 여기서 ?는 있을 수도 없을 수도 있다
 
-// 아직 seed파일이 없으니까 items를 못 받아와서 에러방지용 safeitem
-const safeitems = Array.isArray(items) ? items : [];
-
-
-// const Category= (prop) => { const items = prop.items; } 를 줄인 게 const Category = ({ item }) => {}
 const Category = ({ items }) => {
+    const [products, setProducts] = useState([]);
     const { pet, sub } = useParams();
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // items prop이 배열일 경우에만 상태를 업데이트합니다.
+        if (Array.isArray(items)) {
+            setProducts(items);
+        }
+    }, [items]);
 
     // ? : → 조건(삼항연산자), ?? → null/undefined 체크
     // CATEGORY_ORDER를 쓰고 order안에 없으면 [] 빈 문자열을 내보내라
     const categories = CATEGORY_ORDER[pet] ?? []; // .map() 에러방지용 (pet이 잘못됐거나 url에 pet이 없을 때)
     const categoryName= sub ? CATEGORY_LABEL[sub] : null;
 
-    // seed파일 나오고 데이터 생기면 safeitems를 items로 고치기
-    const list = safeitems
+    // products 상태를 기반으로 목록을 필터링합니다.
+    const list = (Array.isArray(products) ? products : [])
         .filter(x => x.pet_type === pet)
         .filter(x => !sub || x.category === categoryName)
 
@@ -40,7 +43,7 @@ const Category = ({ items }) => {
             <div>
                 {/* localeCompare = 문자열 정렬을 위한 비교함수 (JS 기본기능) */}
                 <Button variant="light" onClick={() => {
-                    let copy = [...items]
+                    let copy = [...products]
                     copy.sort((a, b) => a.title.localeCompare(b.title))
                     setProducts(copy)
                 }}>이름순 정렬</Button> {' '}
