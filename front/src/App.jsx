@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import Navbar from './components/Navbar';
 import PostForm from './components/PostForm';
 import Category from './components/Category';
-import { sendMessage } from "./api/axios";
 import './App.css'; // 기존 App.css를 유지하여 전체적인 스타일링 가능
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";

@@ -47,5 +47,5 @@ export const CATEGORY = {
     clothes: {label: "의류", img: `${PUBLIC}/images/category/clothes.png`},
     life: {label: "실생활용품", img: `${PUBLIC}/images/category/life.png`},
     toy: {label: "장난감", img: `${PUBLIC}/images/category/toy.png`},
-    carrier: {label: "이동장", img: `${PUBLIC}/images/category/toy.png`}
+    carrier: {label: "이동장", img: `${PUBLIC}/images/category/carrier.png`}
 };
