@@ -32,7 +32,7 @@ function Signup() {
       setIdCheck({
         done: true,
         ok: false,
-        msg: "아이디를 먼저 입력해줘!",
+        msg: "아이디를 먼저 입력해주세요.",
       });
       return;
     }
@@ -41,7 +41,7 @@ function Signup() {
     setIdCheck({
       done: true,
       ok: true,
-      msg: "사용 가능한 아이디야! (임시)",
+      msg: "사용 가능한 아이디입니다.",
     });
   };
 
@@ -61,11 +61,11 @@ function Signup() {
     e.preventDefault();
 
     if (!form.userId || !form.pw || !form.pw2) {
-      alert("아이디/비밀번호를 입력해줘!");
+      alert("아이디/비밀번호를 입력해주세요.");
       return;
     }
     if (form.pw !== form.pw2) {
-      alert("비밀번호 확인이 달라!");
+      alert("입력한 비밀번호가 같은지 확인해주세요.");
       return;
     }
 
@@ -98,6 +98,7 @@ function Signup() {
             <div className={styles.fieldRow}>
               <label>아이디 :</label>
 
+             <div className={styles.idArea}>
               <div className={styles.inlineRow}>
                 <input
                   name="userId"
@@ -126,7 +127,7 @@ function Signup() {
                   {idCheck.msg}
                 </div>
               )}
-
+             </div>
             </div>
 
 

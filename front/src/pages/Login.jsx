@@ -108,7 +108,7 @@ export default function Login() {
 
             {/* ✅ 빨간 동그라미: 로그인 버튼 블록 */}
             <div className="d-grid gap-2">
-              <button type="submit" className={`btn ${styles.btn_login}`}>
+              <button type="submit" className={styles.btn_login}>
                 로그인
               </button>
             </div>
@@ -123,7 +123,7 @@ export default function Login() {
         {/* ✅ 빨간 동그라미: 소셜/회원가입 버튼 블록 */}
         <div className="d-grid gap-3 mt-3">
           <button
-            className={`btn ${styles.btn_kakao}`}
+            className={styles.btn_kakao}
             type="button"
             onClick={() => alert("카카오 로그인")}
           >
@@ -131,7 +131,7 @@ export default function Login() {
           </button>
 
           <button
-            className={`btn ${styles.btn_naver}`}
+            className={styles.btn_naver}
             type="button"
             onClick={() => alert("네이버 로그인")}
           >
@@ -139,7 +139,7 @@ export default function Login() {
           </button>
 
           <button
-            className={`btn ${styles.btn_signup}`}
+            className={styles.btn_signup}
             type="button"
             onClick={() => navigate("/signup")}
           >
