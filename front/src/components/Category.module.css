@@ -34,3 +34,42 @@
     height: 50px;
     object-fit: contain;
 }
+
+.container {
+    width: 1200px;
+}
+
+.col {
+    width: 20%;
+    height: 280px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.col img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    margin: 15px 0 12px;
+}
+
+/* module.css는 class 이름을 바꿔버리기 때문에 global 꼭 필요 ! */
+.page :global(.page-link) {
+    border: none;
+    color: #000;
+    outline: 3px none #fff;
+}
+
+.page :global(.page-item.active .page-link) {
+    background-color: #f2f2f2;
+    font-weight: 600;
+}
+
+.page :global(.page-link:hover) {
+    background-color: #f2f2f2;
+    color: #000;
+}
+
+.page :global(.page-item.disabled) {
+  display: none;
+}
