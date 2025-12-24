@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Signup.css";
+import styles from "./Signup.module.css";
 
 function Signup() {
   const navigate = useNavigate();
-
+  
   const [form, setForm] = useState({
     userId: "",
     pw: "",
@@ -21,6 +21,9 @@ function Signup() {
     birth: "",     // 선택사항
   });
 
+  const [errors, setErrors] = useState({});
+
+
   const [idCheck, setIdCheck] = useState({
     done: false,
     ok: false,
@@ -32,7 +35,7 @@ function Signup() {
       setIdCheck({
         done: true,
         ok: false,
-        msg: "아이디를 먼저 입력해줘!",
+        msg: "아이디를 먼저 입력해주세요.",
       });
       return;
     }
@@ -41,7 +44,7 @@ function Signup() {
     setIdCheck({
       done: true,
       ok: true,
-      msg: "사용 가능한 아이디야! (임시)",
+      msg: "사용 가능한 아이디입니다.",
     });
   };
 
@@ -60,45 +63,81 @@ function Signup() {
   const onSubmit = (e) => {
     e.preventDefault();
 
-    if (!form.userId || !form.pw || !form.pw2) {
-      alert("아이디/비밀번호를 입력해줘!");
-      return;
-    }
-    if (form.pw !== form.pw2) {
-      alert("비밀번호 확인이 달라!");
+    const newErrors = validate();
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      alert(Object.values(newErrors)[0]);
       return;
     }
 
-    // TODO: 회원가입 API 연결
     alert("회원가입 완료(임시)!");
     navigate("/login");
   };
 
+
+
+  const validate = () => {
+    const errors = {};
+
+    // ✅ 필수 입력
+    if (!form.userId.trim()) errors.userId = "아이디는 필수입니다.";
+    if (!form.pw.trim()) errors.pw = "비밀번호는 필수입니다.";
+    if (!form.pw2.trim()) errors.pw2 = "비밀번호 확인은 필수입니다.";
+    if (!form.name.trim()) errors.name = "이름은 필수입니다.";
+    if (!form.phone.trim()) errors.phone = "전화번호는 필수입니다.";
+    if (!form.email.trim()) errors.email = "이메일은 필수입니다.";
+    if (!form.address.trim()) errors.address = "주소는 필수입니다.";
+
+    // ✅ 비밀번호 규칙
+    if (form.pw && form.pw.length < 8) errors.pw = "비밀번호는 8자 이상이어야 합니다.";
+    if (form.pw && !/[0-9]/.test(form.pw)) errors.pw = "비밀번호에 숫자를 1개 이상 포함해야 합니다.";
+    if (form.pw && !/[A-Za-z]/.test(form.pw)) errors.pw = "비밀번호에 영문을 1개 이상 포함해야 합니다.";
+    if (form.pw && form.pw2 && form.pw !== form.pw2) errors.pw2 = "비밀번호가 서로 다릅니다.";
+
+    // ✅ 이메일 형식
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      errors.email = "이메일 형식이 올바르지 않습니다.";
+    }
+
+    // ✅ 전화번호 형식(숫자만 10~11자리)
+    const phoneOnly = form.phone.replace(/\D/g, "");
+    if (form.phone && (phoneOnly.length < 10 || phoneOnly.length > 11)) {
+      errors.phone = "전화번호는 숫자만 10~11자 입력해주세요.";
+    }
+
+    return errors;
+  };
+
+
   return (
-    <div className="signupWrap">
-      <div className="signupCard">
+    <div className={styles.signupWrap}>
+      <div className={styles.signupCard}>
         
         <div
-          className="signupHeader"
+          className={styles.signupHeader}
           onClick={() => navigate("/")}
           style={{ cursor: "pointer" }}
         >
           <img
             src={`${process.env.PUBLIC_URL}/images/daitdanyang-logo.png` }
             alt="DaitDanyang"
-            className="brandImage"
+            className={styles.brandImage}
           />
         </div>
 
         <form onSubmit={onSubmit}>
           {/* 기본정보 */}
-          <div className="section">
-            <div className="signup-sectionLabel">기본정보</div>
+          <div className={styles.section}>
+            <div className={styles.signup_sectionLabel}>기본정보</div>
 
-            <div className="fieldRow">
-              <label>아이디 :</label>
+            <div className={styles.fieldRow}>
+              <label>아이디 
+                <span className={styles.required}>*</span>
+              </label>
 
-              <div className="inlineRow">
+             <div className={styles.idArea}>
+              <div className={styles.inlineRow}>
                 <input
                   name="userId"
                   value={form.userId}
@@ -111,7 +150,7 @@ function Signup() {
 
                 <button
                   type="button"
-                  className="btnInline"
+                  className={styles.btnInline}
                   onClick={handleCheckId}
                 >
                   중복확인
@@ -119,15 +158,21 @@ function Signup() {
               </div>
 
               {idCheck.done && (
-                <div className={`helpText ${idCheck.ok ? "ok" : "bad"}`}>
+                <div
+                  className={`${styles.helpText} ${idCheck.ok ? styles.ok : styles.bad
+                    }`}
+                >
                   {idCheck.msg}
                 </div>
               )}
+             </div>
             </div>
 
 
-            <div className="fieldRow">
-              <label>비밀번호 :</label>
+            <div className={styles.fieldRow}>
+              <label>비밀번호 
+                <span className={styles.required}>*</span>
+              </label>
               <input
                 type="password"
                 name="pw"
@@ -135,10 +180,13 @@ function Signup() {
                 onChange={onChange}
                 placeholder="비밀번호"
               />
+              {/* {errors.pw && <p className={styles.errorText}>{errors.pw}</p>}               */}
             </div>
 
-            <div className="fieldRow">
-              <label>비밀번호 확인 :</label>
+            <div className={styles.fieldRow}>
+              <label>비밀번호 확인 
+                <span className={styles.required}>*</span>
+              </label>
               <input
                 type="password"
                 name="pw2"
@@ -146,10 +194,13 @@ function Signup() {
                 onChange={onChange}
                 placeholder="비밀번호 확인"
               />
+              {/* {errors.pw2 && <p className={styles.errorText}>{errors.pw2}</p>} */}
             </div>
 
-            <div className="fieldRow">
-              <label>이름 :</label>
+            <div className={styles.fieldRow}>
+              <label>이름 
+                <span className={styles.required}>*</span>
+              </label>
               <input
                 name="name"
                 value={form.name}
@@ -158,11 +209,13 @@ function Signup() {
               />
             </div>
 
-            <div className="fieldRow">
-              <label>주소 :</label>
+            <div className={styles.fieldRow}>
+              <label>주소 
+                <span className={styles.required}>*</span>
+              </label>
 
-              <div className="addressBlock">
-                <div className="inlineRow">
+              <div className={styles.addressBlock}>
+                <div className={styles.inlineRow}>
                   <input
                     name="address"
                     value={form.address}
@@ -172,7 +225,7 @@ function Signup() {
                   />
                   <button
                     type="button"
-                    className="btnInline"
+                    className={styles.btnInline}
                     onClick={handleAddressSearch}
                   >
                     주소검색
@@ -184,14 +237,16 @@ function Signup() {
                   value={form.addressDetail}
                   onChange={onChange}
                   placeholder="상세주소"
-                  className="mt8"
+                  className={styles.mt8}
                 />
               </div>
             </div>
 
 
-            <div className="fieldRow">
-              <label>전화번호 :</label>
+            <div className={styles.fieldRow}>
+              <label>전화번호 
+                <span className={styles.required}>*</span>
+              </label>
               <input
                 name="phone"
                 value={form.phone}
@@ -200,8 +255,10 @@ function Signup() {
               />
             </div>
 
-            <div className="fieldRow">
-              <label>이메일 :</label>
+            <div className={styles.fieldRow}>
+              <label>이메일 
+                <span className={styles.required}>*</span>
+              </label>
               <input
                 name="email"
                 value={form.email}
@@ -210,24 +267,16 @@ function Signup() {
               />
             </div>
 
-            <div className="fieldRow">
-              <label>소셜연결 :</label>
-              <input
-                name="social"
-                value={form.social}
-                onChange={onChange}
-                placeholder="카카오/네이버 등(선택)"
-              />
-            </div>
+
           </div>
 
-          <hr className="divider" />
+          <hr className={styles.divider} />
 
           {/* 선택사항 */}
-          <div className="section">
-            <div className="sectionLabel">선택사항</div>
+          <div className={styles.section}>
+            <div className={styles.signup_sectionLabel}>선택사항</div>
 
-            <div className="fieldRow">
+            <div className={styles.fieldRow}>
               <label>종류 :</label>
               <select name="petType" value={form.petType} onChange={onChange}>
                 <option value="">선택</option>
@@ -237,7 +286,7 @@ function Signup() {
               </select>
             </div>
 
-            <div className="fieldRow">
+            <div className={styles.fieldRow}>
               <label>성별 :</label>
               <select name="gender" value={form.gender} onChange={onChange}>
                 <option value="">선택</option>
@@ -247,7 +296,7 @@ function Signup() {
               </select>
             </div>
 
-            <div className="fieldRow">
+            <div className={styles.fieldRow}>
               <label>생일 :</label>
               <input
                 type="date"
@@ -258,8 +307,8 @@ function Signup() {
             </div>
           </div>
 
-          <div className="submitRow">
-            <button className="btnSignup" type="submit">
+          <div className={styles.submitRow}>
+            <button className={styles.btnSignup} type="submit">
               회원가입
             </button>
           </div>

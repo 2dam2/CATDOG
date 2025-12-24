@@ -3,10 +3,11 @@ import React, { useState } from "react";
 import Navbar from './components/Navbar';
 import PostForm from './components/PostForm';
 import Category from './components/Category';
-import { sendMessage } from "./api/axios";
+
 import './App.css'; // 기존 App.css를 유지하여 전체적인 스타일링 가능
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import FindAccount from "./pages/FindAccount";
 import { Route, Routes } from "react-router-dom";
 
 
@@ -18,12 +19,18 @@ function MainLayout() {
     <div className="MainLayout">
       <Navbar />
       <Routes>
+<<<<<<< HEAD
 
         {/* 이 라우트는 App 컴포넌트의 메인 라우터로 이동되었습니다. */}
 =======
         <Route path="/category/:pet/:sub?" element={<Category items={products} />} />
         <Route path="/form" element={<PostForm />} />
 
+=======
+        <Route path="/category/:pet/:sub?" element={<PostForm />} />
+        <Route path="/form" element={<PostForm />} />
+        <Route path="/find-account" element={<FindAccount />} />
+>>>>>>> 4784ae72c92e61c50699e353188834ee04c8cbe1
       </Routes>
     </div>
   );
