@@ -123,7 +123,7 @@ const Category = ({ items }) => {
                         <Col className={styles.col} key={item.id} onClick={() => { navigate(`/product/${item.id}`) }} >
                             {/* process.env.PUBLIC_URL = public 폴더 안 파일을 가져올 때 쓰는 절대경로 => react가 자동으로 올바름 public경로를 붙여줌
                                 ∵ 개발환경 / 배포환경에서 경로가 달라질 수 있기 때문 */}
-                            <img src={`${process.env.PUBLIC_URL}/${item.imgUrl}`} alt="상품이미지" />
+                            <img src={`${process.env.PUBLIC_URL}${item.imgUrl}`} alt="상품이미지" />
                             <h5>{item.title}</h5>
                             <p>{item.price}원</p>
                         </Col>
