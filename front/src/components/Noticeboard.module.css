@@ -1,0 +1,133 @@
+/* 전역 리셋 (CSS Module에서 강제 적용) */
+:global(*) {
+  box-sizing: border-box;
+}
+
+:global(body) {
+  margin: 0;
+  padding: 0;
+}
+
+/* 페이지 중앙 정렬 */
+.page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* 게시판 전체 */
+.noticeBoard {
+  width: 1200px;
+  height: 1520px;
+  overflow-x: hidden; /* 최종 차단 */
+}
+
+/* 검색 영역 */
+.searchArea {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.searchInput {
+  width: 850px;
+  height: 50px;
+  padding: 0 10px;
+}
+
+.searchButton {
+  width: 120px;
+  height: 50px;
+  border: none;
+  cursor: pointer;
+}
+
+/* 제목 영역 */
+.titleArea {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.title {
+  margin: 0;
+}
+
+.writeButton {
+  width: 80px;
+  height: 36px;
+  border: none;
+  cursor: pointer;
+}
+
+/* 조회 기간 */
+.filterArea {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.filterArea span {
+  margin: 0 6px;
+  cursor: pointer;
+}
+
+/* 테이블 래퍼 (핵심) */
+.tableWrap {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* 테이블 */
+.table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* 삐져나옴 방지 핵심 */
+}
+
+.table th,
+.table td {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.table td:nth-child(2) {
+  text-align: left;
+}
+
+/* 페이지네이션 */
+.pagination {
+  margin-top: 30px;
+  text-align: center;
+}
+/* 글쓰기 */
+.writeArea {
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid #ddd;
+}
+
+.writeInput {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.writeButtons {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
