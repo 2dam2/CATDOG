@@ -29,6 +29,7 @@ import Withdraw from "./pages/MyPage/member/Withdraw";
 import MyQna from "./pages/MyPage/MyQna";
 import MyReview from "./pages/MyPage/MyReview";
 
+
 import Footer from './components/Footer'; 
 import MainPage from "./pages/MainPage"; 
 import EventPage from "./pages/EventPage"; 
@@ -85,6 +86,7 @@ export default function App() {
             <Route path="shopping/orders" element={<OrderList />} />
             <Route path="shopping/returns" element={<ReturnCancel />} />
             {/* <Route path="shopping/wishlist" element={<WishList />} /> */}
+
             <Route path="shopping/wishlist" element={<WishlistPage />} /> {/* 찜목록 (마이페이지) */}
 
             <Route path="member/edit" element={<EditProfile />} />
