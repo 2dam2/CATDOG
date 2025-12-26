@@ -15,12 +15,16 @@ logs/
 *.csv
 *.json
 *.zip
+*.txt
 
 # ===== Front =====
 node_modules/
 build/
 dist/
+src/app.jsx
 
 # ===== IDE =====
 .vscode/
 .idea/
+.gemini/
+data/
