@@ -9,3 +9,11 @@ export async function fetchProductDetail(productId) {
   const res = await client.get(`/api/product/${productId}`);
   return res.data;
 }
+
+export async function fetchReviews(productId, page, sort) {
+  const res = await client.get(
+    `/api/product/${productId}/reviews`,
+    { params: { page, limit: 5, sort } }
+  );
+  return res.data;
+}

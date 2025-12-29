@@ -293,6 +293,15 @@ class Review(db.Model):
 
     create_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "content": self.content,
+            "img_url": self.img_url,
+            "rating": self.rating,
+            "create_date": self.create_date.isoformat(),
+            "writer": f"구매자{self.user_id}"
+        }
 # ============================================
 # 7. pet (내가 키우는 동물에 대한 정보)
 # ============================================

@@ -1,63 +1,111 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Noticeboard.module.css";
 
+const STORAGE_KEY = "notice_posts";
+const ITEMS_PER_PAGE = 10;
+const PAGE_RANGE = 5;
 
 export default function Noticeboard() {
   const navigate = useNavigate();
+  const [list, setList] = useState([]);
+  const [page, setPage] = useState(1);
 
-  const [list, setList] = useState(
-    Array.from({ length: 10 }).map((_, i) => ({
-      id: i + 1,
-      title: "공지사항입니다",
-      writer: "관리자",
-      date: "2025-12-26",
-      view: 0,
-    }))
+  // 🔥 조회 기간 상태
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  useEffect(() => {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    setList(data);
+  }, []);
+
+  /** 🔥 기간 필터 */
+  const filteredList = list.filter((post) => {
+    if (!startDate && !endDate) return true;
+    const d = new Date(post.date);
+    if (startDate && d < new Date(startDate)) return false;
+    if (endDate && d > new Date(endDate)) return false;
+    return true;
+  });
+
+  const totalPage = Math.ceil(filteredList.length / ITEMS_PER_PAGE);
+
+  const startIndex = (page - 1) * ITEMS_PER_PAGE;
+  const currentList = filteredList.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
   );
 
-  const [keyword, setKeyword] = useState("");
-  const [isWriteOpen, setIsWriteOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
+  const startPage =
+    Math.floor((page - 1) / PAGE_RANGE) * PAGE_RANGE + 1;
+  const endPage = Math.min(startPage + PAGE_RANGE - 1, totalPage);
 
-  const filteredList = list.filter((item) =>
-    item.title.includes(keyword.trim())
-  );
+  /** 🔥 기간 버튼 핸들러 */
+  const setPeriod = (days) => {
+    const today = new Date();
+    const past = new Date();
+    past.setDate(today.getDate() - days);
 
-  const handleWrite = () => {
-    if (!newTitle.trim()) return;
+    setStartDate(past.toISOString().slice(0, 10));
+    setEndDate(today.toISOString().slice(0, 10));
+    setPage(1);
+  };
 
-    const today = new Date().toISOString().slice(0, 10);
+  const pageBtnStyle = (active) => ({
+    minWidth: "34px",
+    height: "34px",
+    margin: "0 4px",
+    borderRadius: "50%",
+    border: "1px solid #ccc",
+    backgroundColor: active ? "#9bbce6" : "#fff",
+    color: active ? "#fff" : "#333",
+    cursor: "pointer",
+    fontWeight: active ? "bold" : "normal",
+  });
 
-    setList([
-      {
-        id: list.length + 1,
-        title: newTitle,
-        writer: "관리자",
-        date: today,
-        view: 0,
-      },
-      ...list,
-    ]);
-
-    setNewTitle("");
-    setIsWriteOpen(false);
+  const navBtnStyle = {
+    minWidth: "34px",
+    height: "34px",
+    margin: "0 4px",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    backgroundColor: "#f5f5f5",
+    cursor: "pointer",
   };
 
   return (
     <div className={styles.page}>
       <div className={styles.noticeBoard}>
 
-        <div className={styles.searchArea}>
+        {/* 🔥 조회 기간 */}
+        <div className={styles.filterArea}>
+          <strong>조회 기간 :</strong>
+          <span onClick={() => setPeriod(0)}>오늘</span> /
+          <span onClick={() => setPeriod(7)}>일주일</span> /
+          <span onClick={() => setPeriod(30)}>한달</span> /
+          <span onClick={() => setPeriod(90)}>3개월</span>
+          &nbsp;
           <input
-            className={styles.searchInput}
-            placeholder="검색"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            type="date"
+            value={startDate}
+            onChange={(e) => {
+              setStartDate(e.target.value);
+              setPage(1);
+            }}
           />
-          <button className={styles.searchButton}>검색</button>
+          ~
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => {
+              setEndDate(e.target.value);
+              setPage(1);
+            }}
+          />
         </div>
 
+        {/* 제목 + 글쓰기 */}
         <div className={styles.titleArea}>
           <h2 className={styles.title}>게시판</h2>
           <button
@@ -68,15 +116,7 @@ export default function Noticeboard() {
           </button>
         </div>
 
-        <div className={styles.filterArea}>
-          조회 기간 :
-          <span>오늘</span> /
-          <span>일주일</span> /
-          <span>한달</span> /
-          <span>3개월</span> /
-          <span>날짜지정</span>
-        </div>
-
+        {/* 테이블 */}
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
@@ -89,29 +129,71 @@ export default function Noticeboard() {
               </tr>
             </thead>
             <tbody>
-              {filteredList.length > 0 ? (
-                filteredList.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.id}</td>
-                    <td>{item.title}</td>
-                    <td>{item.writer}</td>
-                    <td>{item.date}</td>
-                    <td>{item.view}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
-                    검색 결과가 없습니다.
-                  </td>
+              {currentList.map((item, index) => (
+                <tr
+                  key={item.id}
+                  onClick={() =>
+                    navigate(`/Noticeboard/${item.id}`)
+                  }
+                  style={{ cursor: "pointer" }}
+                >
+                  <td>{startIndex + index + 1}</td>
+                  <td>{item.title}</td>
+                  <td>{item.writer}</td>
+                  <td>{item.date}</td>
+                  <td>{item.view}</td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
         </div>
 
+        {/* ✅ 기존 페이지네이션 그대로 */}
         <div className={styles.pagination}>
-          1 2 3 4 5 6 7 8 9 10 &gt;&gt;
+          <button
+            style={navBtnStyle}
+            disabled={page === 1}
+            onClick={() => setPage(1)}
+          >
+            «
+          </button>
+
+          <button
+            style={navBtnStyle}
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+          >
+            ‹
+          </button>
+
+          {Array.from(
+            { length: endPage - startPage + 1 },
+            (_, i) => startPage + i
+          ).map((p) => (
+            <button
+              key={p}
+              style={pageBtnStyle(page === p)}
+              onClick={() => setPage(p)}
+            >
+              {p}
+            </button>
+          ))}
+
+          <button
+            style={navBtnStyle}
+            disabled={page === totalPage}
+            onClick={() => setPage(page + 1)}
+          >
+            ›
+          </button>
+
+          <button
+            style={navBtnStyle}
+            disabled={page === totalPage}
+            onClick={() => setPage(totalPage)}
+          >
+            »
+          </button>
         </div>
 
       </div>

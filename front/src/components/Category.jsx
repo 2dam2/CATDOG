@@ -144,10 +144,10 @@ const Category = () => {
 
       {/* 백에서 정한 정렬방식 이용 */}
       <div className={styles.sortbtn}>
-        <Button variant="light" onClick={() => setSort("views_desc")}>조회순</Button>{" "}
         <Button variant="light" onClick={() => setSort("price_asc")}>낮은 가격 순</Button>{" "}
         <Button variant="light" onClick={() => setSort("price_desc")}>높은 가격 순</Button>{" "}
         <Button variant="light" onClick={() => setSort("review_count_desc")}>리뷰 많은순</Button>{" "}
+        <Button variant="light" onClick={() => setSort("views_desc")}>조회순</Button>{" "}
         {/* 기본이 상품 고유아이디 번호 순이여서 리뷰 많은 순 으로 대체 하였음 아직 리뷰가 없어서 변별력은없음  */}
       </div>
 
@@ -184,7 +184,7 @@ const Category = () => {
                       e.currentTarget.src = `${process.env.PUBLIC_URL}/images/no-image.png`;
                     }}
                   />
-                  <h5>{item.title}</h5>
+                  <h6 className={styles.title}>{item.title}</h6>
 
                   {/* toLocaleString: 12000 -> 12,000 */}
                   <p>{Number(item.price).toLocaleString()}원</p>
@@ -195,7 +195,7 @@ const Category = () => {
             {/* 페이지네이션 (페이지가 2 이상일 때만 표시) */}
             {totalPages > 1 && (
               <div className="d-flex justify-content-center mt-4">
-                <Pagination className={styles.page}>
+                <Pagination className={styles.category_pagination}>
                   <Pagination.First onClick={() => setPage(1)} disabled={page === 1} />
                   <Pagination.Prev
                     onClick={() => setPage((p) => Math.max(1, p - 1))}

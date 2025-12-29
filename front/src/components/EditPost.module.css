@@ -1,0 +1,51 @@
+.page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 800px;
+  margin-top: 40px;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.field {
+  margin-bottom: 20px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.buttonArea {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.buttonArea button {
+  width: 100px;
+  height: 36px;
+  border: none;
+  cursor: pointer;
+}

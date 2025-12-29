@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useEffect, useState } from "react";
-import { Container, Spinner, Alert } from 'react-bootstrap';
+import { Container, Spinner, Alert, Pagination } from 'react-bootstrap';
 import { useNavigate, useParams } from "react-router-dom";
 
 import styles from "./Product.module.css";
-import { fetchProductDetail } from "../api/productApi";
+import { fetchProductDetail, fetchReviews } from "../api/productApi";
 import { fetchMyCart, addCart, updateCart } from "../api/cartApi";
 
 const Product = () => {
@@ -17,9 +17,22 @@ const Product = () => {
     // 로딩, 에러 처리
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [reverr, setReverr] = useState("");
+
+    // 상품 수량
+    const [qty, setQty] = useState(1);
 
     // 밑에 상세페이지 부분
     const [activeTab, setActiveTab] = useState("info");
+
+    // 리뷰관련 (리뷰, 페이지, 정렬)
+    const [reviews, setReviews] = useState([]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [sort, setSort] = useState("id_desc");
+
+
+
 
     const getImageSrc = (item) => {
         // item?.imgUrl 옵셔널체이닝(?.) → item이 있으면 가져오고 없으면 에러내지말고 undefined를 돌려달라는 문법
@@ -77,6 +90,18 @@ const Product = () => {
         };
     }, [id]);
 
+    // 가격
+    const price = Number(product.price)
+    // 수량
+    const p_price = Number(product?.price ?? 0);
+    const totalPrice = useMemo(() => p_price * qty, [p_price, qty]);
+
+    // 배송비
+    const shippingFee = totalPrice >= 30000 ? 0 : 3000;
+
+    const minus = () => setQty((q) => Math.max(1, q - 1));
+    const plus = () => setQty((q) => q + 1);
+
     // 찜
     const wishitem = () => {
         console.log("찜", product?.id);
@@ -107,7 +132,7 @@ const Product = () => {
         }
     };
 
-        // 구매 (지금 cart page는 db에 저장 X, cartStorage = 브라우저에 저장해둠)
+    // 구매 (지금 cart page는 db에 저장 X, cartStorage = 브라우저에 저장해둠)
     const buyitem = async () => {
         if (!product?.id) return;
 
@@ -138,6 +163,31 @@ const Product = () => {
         document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
+    // 리뷰
+    const PAGE_GROUP = 10;
+
+    const startPage = Math.floor((page - 1) / PAGE_GROUP) * PAGE_GROUP + 1;
+    const endPage = Math.min(startPage + PAGE_GROUP - 1, totalPages);
+
+    useEffect(() => {
+        if (!product?.id) return;
+
+        (async () => {
+            try {
+                const data = await fetchReviews(product.id, page, sort);
+                setReviews(data.items);
+                setTotalPages(data.totalPages);
+                setReverr(null);
+            } catch (err) {
+                const msg =
+                    err.response?.data?.error ||
+                    err.message ||
+                    "리뷰 로딩 실패";
+                setReverr(msg);
+            }
+        })();
+    }, [product?.id, page, sort]);
+
     return (
         <Container className="my-4">
             {/* 로딩중일 때 */}
@@ -163,18 +213,41 @@ const Product = () => {
                         </div>
 
                         <div className={styles.text}>
-                            <h2>{product.title}</h2>
+                            <h3>{product.title}</h3>
                             <hr />
                             <div className={styles.row}>
                                 <span className={styles.label}>판매가</span>
                                 <span className={styles.price}>
-                                    {product.price}원
+                                    {price.toLocaleString()}원
                                 </span>
+                            </div>
+                            <div className={styles.row}>
+                                <span className={styles.label}>국내·해외배송</span>
+                                <span className={styles.value}>국내배송</span>
+                            </div>
+                            <div className={styles.row}>
+                                <span className={styles.label}>배송 방법</span>
+                                <span className={styles.value}>택배</span>
+                            </div>
+                            <div className={styles.row}>
+                                <span className={styles.label}>배송비</span>
+                                <span className={styles.value}>{shippingFee === 0 ? "무료" : `${shippingFee.toLocaleString()}원`}</span>
                             </div>
 
                             <div className={styles.row}>
-                                <span className={styles.label}>배송비</span>
-                                <span className={styles.value}>3000원</span>
+                                <span className={styles.label}>수량</span>
+                                <button className={styles.qty} onClick={minus} disabled={qty === 1}>
+                                    <img src={`${process.env.PUBLIC_URL}/images/minus.png`} alt="minus" />
+                                </button>
+                                {/* 커서를 바깥으로 클릭했을 때 삼항연산자 실행 = 0이나 문자가 들어가면 1로 바꿔줌 */}
+                                <input type="number" className={`${styles.num} ${styles.value}`} value={qty} min={1} onChange={(e) => setQty(e.target.value)} onBlur={() => setQty(qty < 1 ? 1 : Number(qty))}></input>
+                                <button className={styles.qty} onClick={plus}>
+                                    <img src={`${process.env.PUBLIC_URL}/images/plus.png`} alt="plus" />
+                                </button>
+                            </div>
+                            <div className={styles.row}>
+                                <span className={styles.label}>총 상품 금액</span>
+                                <span className={styles.value}>{totalPrice.toLocaleString()}원</span>
                             </div>
 
                             <div className={styles.button}>
@@ -192,18 +265,13 @@ const Product = () => {
                     </div>
                     <div className={styles.detailNav}>
                         <button className={activeTab === "info" ? styles.active : ""} onClick={() => scrollTo("info")}>
-                            상품정보
+                            배송정보
                         </button>
                         <button className={activeTab === "exchange" ? styles.active : ""} onClick={() => scrollTo("exchange")}>
                             교환/반품
                         </button>
                         <button className={activeTab === "review" ? styles.active : ""} onClick={() => scrollTo("review")}>
                             상품후기 ({product?.review_count ?? 0})
-                        </button>
-
-                        {/* **** question db에 product_id가 없어서 문의 개수 불러올 수 X **** */}
-                        <button className={activeTab === "qna" ? styles.active : ""} onClick={() => scrollTo("qna")}>
-                            상품문의 (0)
                         </button>
                     </div>
 
@@ -214,7 +282,7 @@ const Product = () => {
                             <li>3만원 이상 구매 시 무료배송됩니다. (부피, 무게 무관)</li>
                             <li>제주, 도서산간 지역은 3,000원 택배비 추가됩니다.</li>
                             <li>
-                                도그팡, 캣팡 출고상품은 평일 오후 5시까지,
+                                다잇다냥 출고상품은 평일 오후 5시까지,
                                 토요일은 낮 12시 결제건까지 당일 출고됩니다.
                             </li>
                             <li>택배사 사정에 따라 CJ대한통운, 롯데택배로 출고될 수 있습니다.</li>
@@ -234,14 +302,62 @@ const Product = () => {
                         </ul>
                     </section>
 
-                    <section id="review" className={styles.detailpage}>
-                        <h4>상품후기</h4>
-                        <p>리뷰</p>
-                    </section>
 
-                    <section id="qna" className={styles.detailpage}>
-                        <h4>상품문의</h4>
-                        <p>문의</p>
+                    <section id="review" className={styles.detailpage}>
+                        <div className={styles.revbtn}>
+                            <h4>상품후기</h4>
+                            <div>
+                                <button className={styles.revsort} onClick={() => { setSort("id_desc"); setPage(1); }}>최신순</button>
+                                <button className={styles.revsort} onClick={() => { setSort("rating_desc"); setPage(1); }}>별점 높은순</button>
+                                <button className={styles.revsort} onClick={() => { setSort("rating_asc"); setPage(1); }}>별점 낮은순</button>
+                            </div>
+                        </div>
+                        {reverr && (
+                            <Alert variant="danger" className="my-3">
+                                {reverr}
+                            </Alert>
+                        )}
+                        {!reverr && reviews.length === 0 && (
+                            <div className="text-center text-muted my-3">
+                                아직 등록된 리뷰가 없습니다.
+                            </div>
+                        )}
+
+                        {reviews.map((r) => (
+                            <div key={r.id}>
+                                <div>{r.writer}</div>
+                                <div>{"★".repeat(r.rating)}</div>
+                                <div>{r.content}</div>
+                            </div>
+                        ))}
+
+                        {totalPages > 1 && (
+                            <div className="d-flex justify-content-center mt-4">
+                                <Pagination className={styles.review_pagination}>
+                                    <Pagination.First onClick={() => setPage(1)} disabled={page === 1} />
+                                    <Pagination.Prev
+                                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                        disabled={page === 1}
+                                    />
+
+                                    {/* startPage~endPage만큼만 번호 버튼 생성 */}
+                                    {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((n) => (
+                                        <Pagination.Item key={n} active={n === page} onClick={() => setPage(n)}>
+                                            {n}
+                                        </Pagination.Item>
+                                    ))}
+
+                                    <Pagination.Next
+                                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                        disabled={page === totalPages}
+                                    />
+                                    <Pagination.Last
+                                        onClick={() => setPage(totalPages)}
+                                        disabled={page === totalPages}
+                                    />
+                                </Pagination>
+                            </div>
+                        )}
                     </section>
                 </>
             )}

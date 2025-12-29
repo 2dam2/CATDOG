@@ -4,7 +4,7 @@ import jwt
 
 from petShop.models import Cart, Product, User, db
 
-bp = Blueprint("cart", __name__, url_prefix="/api/cart")
+cart_bp = Blueprint("cart", __name__, url_prefix="/api/cart")
 
 def token_required(f):
     @wraps(f)
@@ -29,7 +29,7 @@ def token_required(f):
     return decorated
 
 # 장바구니 목록 조회 / 현재 유저의 cart를 가져와 carts를 돌면서(for문 축약형인 리스트 컴프리헨션) json으로 바꿔줌
-@bp.route("", methods=["GET"])
+@cart_bp.route("", methods=["GET"])
 @token_required
 def get_cart(current_user_id):
     carts = Cart.query.filter_by(user_id=current_user_id).all()
@@ -41,7 +41,7 @@ def get_cart(current_user_id):
     } for c in carts]), 200
 
 # 장바구니 추가
-@bp.route("", methods=["POST"])
+@cart_bp.route("", methods=["POST"])
 @token_required
 def add_cart(current_user_id):
     data = request.get_json() or {}
@@ -69,7 +69,7 @@ def add_cart(current_user_id):
 
 
 # 수량 변경
-@bp.route("/<int:cart_id>", methods=["PATCH"])
+@cart_bp.route("/<int:cart_id>", methods=["PATCH"])
 @token_required
 def patch_cart(current_user_id, cart_id):
     data = request.get_json() or {}
@@ -88,7 +88,7 @@ def patch_cart(current_user_id, cart_id):
     return jsonify({"id": item.id, "product_id": item.product_id, "count": item.count}), 200
 
 # 장바구니 상품 삭제
-@bp.route("/<int:cart_id>", methods=["DELETE"])
+@cart_bp.route("/<int:cart_id>", methods=["DELETE"])
 @token_required
 def delete_cart(current_user_id, cart_id):
     item = Cart.query.filter_by(id=cart_id, user_id=current_user_id).first()

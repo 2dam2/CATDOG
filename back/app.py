@@ -4,7 +4,9 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_migrate import Migrate
 from petShop.models import db
+from petShop.views.cart import cart_bp
 from petShop.views.product import product_bp
+from petShop.views.review import review_bp
 from petShop.views.wishlist import bp as wishlist_bp
 
 migrate = Migrate()
@@ -39,6 +41,8 @@ def create_app():
     # ✅ 이거 추가!
     app.register_blueprint(product_bp)
     app.register_blueprint(wishlist_bp)
+    app.register_blueprint(cart_bp)
+    app.register_blueprint(review_bp)
 
     return app
 

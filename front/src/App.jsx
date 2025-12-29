@@ -36,6 +36,8 @@ import EventPage from "./pages/EventPage";
 import CustomerCenterPage from "./pages/CustomerCenterPage"; 
 import Chatbot from "./components/Chatbot"; 
 import Noticeboard from "./components/Noticeboard";
+// import NoticeDetail from "./components/NoticeDetail";
+// import EditPost from "./components/EditPost";
 import Order from "./components/Order";
 
 
@@ -67,16 +69,15 @@ export default function App() {
           {/* 기존 페이지들 */}
           <Route path="category/:pet/:sub?" element={<Category />} />
           <Route path="product/:id" element={<Product />} />
-          <Route path="form" element={<PostForm />} />
+          {/* <Route path="/write" element={<PostForm />} /> */}
           <Route path="find-account" element={<FindAccount />} />
           <Route path="cart" element={<CartPage />} />
           <Route path="order/complete" element={<OrderComplete />} />
-          <Route path="/dog" element={<Category pet="dog" />} />
-          <Route path="/cat" element={<Category pet="cat" />} />
-          <Route path="/small" element={<Category pet="small" />} />
           <Route path="/events" element={<EventPage />} /> {/* Navbar의 /events와 매핑 */}
           <Route path="/support" element={<CustomerCenterPage />} /> {/* Navbar의 /support와 매핑 */}
           <Route path="/Noticeboard" element={<Noticeboard />} />
+          {/* <Route path="/Noticeboard/:id" element={<NoticeDetail />} />
+          <Route path="/Noticeboard/edit/:id" element={<EditPost />} /> */}
           <Route path="/order" element={<Order />} />
 
           {/* ✅ 마이페이지 */}
