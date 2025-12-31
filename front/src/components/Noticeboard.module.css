@@ -1,25 +1,33 @@
-/* 전역 리셋 (CSS Module에서 강제 적용) */
+/* 전역 리셋 */
 :global(*) {
   box-sizing: border-box;
+  font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
 }
 
 :global(body) {
   margin: 0;
   padding: 0;
+  background-color: #f4f6f9;
+  color: #333;
 }
 
-/* 페이지 중앙 정렬 */
+/* 페이지 중앙 */
 .page {
   width: 100%;
   display: flex;
   justify-content: center;
+  padding: 40px 0;
 }
 
-/* 게시판 전체 */
+/* 게시판 카드 */
 .noticeBoard {
   width: 1200px;
-  height: 1520px;
-  overflow-x: hidden; /* 최종 차단 */
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow-x: hidden;
+  padding: 20px 0 40px;
 }
 
 /* 검색 영역 */
@@ -29,20 +37,39 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 0 20px;
 }
 
 .searchInput {
   width: 850px;
-  height: 50px;
-  padding: 0 10px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid #dcdfe6;
+  font-size: 15px;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #4a7cff;
+  box-shadow: 0 0 0 2px rgba(74, 124, 255, 0.15);
 }
 
 .searchButton {
   width: 120px;
-  height: 50px;
+  height: 48px;
+  border-radius: 8px;
   border: none;
+  background: #4a7cff;
+  color: #fff;
+  font-size: 15px;
   cursor: pointer;
+  transition: background 0.2s;
+}
+
+.searchButton:hover {
+  background: #3a68e0;
 }
 
 /* 제목 영역 */
@@ -52,52 +79,85 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 30px;
+  margin-top: 10px;
 }
 
 .title {
   margin: 0;
+  font-size: 22px;
+  font-weight: 700;
 }
 
+/* ✅ 글쓰기 버튼 (요청한 색상) */
 .writeButton {
-  width: 80px;
-  height: 36px;
+  width: 90px;
+  height: 38px;
+  border-radius: 8px;
   border: none;
+  background: rgb(155, 188, 230);
+  color: #fff;
+  font-size: 14px;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-/* 조회 기간 */
+.writeButton:hover {
+  background: rgb(140, 175, 215);
+}
+
+/* 필터 */
 .filterArea {
   width: 100%;
-  height: 60px;
+  height: 50px;
   display: flex;
   align-items: center;
-  padding: 0 20px;
+  padding: 0 30px;
+  font-size: 14px;
+  color: #666;
 }
 
 .filterArea span {
-  margin: 0 6px;
+  margin-right: 14px;
   cursor: pointer;
+  position: relative;
 }
 
-/* 테이블 래퍼 (핵심) */
+.filterArea span:hover {
+  color: #4a7cff;
+}
+
+/* 테이블 래퍼 */
 .tableWrap {
   width: 100%;
+  padding: 0 20px;
   overflow-x: hidden;
 }
 
 /* 테이블 */
 .table {
   width: 100%;
-  max-width: 100%;
   border-collapse: collapse;
-  table-layout: fixed; /* 삐져나옴 방지 핵심 */
+  table-layout: fixed;
+  margin-top: 10px;
 }
 
-.table th,
+.table thead {
+  background: #f1f4f8;
+}
+
+.table th {
+  padding: 12px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 1px solid #dfe3e8;
+}
+
 .table td {
-  padding: 8px;
-  border-bottom: 1px solid #ccc;
+  padding: 14px 8px;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
@@ -108,26 +168,75 @@
   text-align: left;
 }
 
+.table tbody tr:hover {
+  background: #f8faff;
+}
+
 /* 페이지네이션 */
 .pagination {
-  margin-top: 30px;
+  margin-top: 40px;
   text-align: center;
 }
-/* 글쓰기 */
+
+.pagination button {
+  min-width: 36px;
+  height: 36px;
+  margin: 0 4px;
+  border-radius: 8px;
+  border: 1px solid #dcdfe6;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.pagination button:hover {
+  background: #4a7cff;
+  color: #fff;
+  border-color: #4a7cff;
+}
+
+/* 글쓰기 영역 */
 .writeArea {
-  margin: 20px 0;
-  padding: 16px;
-  border: 1px solid #ddd;
+  margin: 30px 20px 0;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e1e4e8;
+  background: #fafbfc;
 }
 
 .writeInput {
   width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #dcdfe6;
+  font-size: 14px;
+}
+
+.writeInput:focus {
+  outline: none;
+  border-color: #4a7cff;
 }
 
 .writeButtons {
-  margin-top: 10px;
+  margin-top: 12px;
   display: flex;
-  gap: 8px;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.writeButtons button {
+  min-width: 80px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.writeButtons button:first-child {
+  background: #4a7cff;
+  color: #fff;
+}
+
+.writeButtons button:last-child {
+  background: #e0e0e0;
 }

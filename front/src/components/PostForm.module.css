@@ -1,3 +1,7 @@
+:root {
+  --action-btn-width: 748px; /* 이 값만 바꾸면 두 버튼 가로 길이 같이 바뀜 */
+}
+
 .container {
   max-width: 800px;
   margin: 30px auto;
@@ -12,7 +16,6 @@
   text-align: center;
   color: #333;
 }
-
 
 .form {
   display: flex;
@@ -43,7 +46,9 @@
   resize: vertical;
 }
 
+/* ✅ 파일 선택 버튼 */
 .field input[type="file"] {
+  width: var(--action-btn-width);
   border: 1px solid #ccc;
   padding: 8px;
   background: #f9f9f9;
@@ -56,11 +61,13 @@
   color: #666;
 }
 
+/* ✅ 등록하기 버튼 */
 .submitButton {
   margin-top: 10px;
+  width: var(--action-btn-width);
   padding: 12px;
-  background-color: #28a745;
-  color: #fff;
+  background-color: #BBD2E6;
+  color: #2f4f6f;
   border: none;
   border-radius: 4px;
   font-size: 16px;
@@ -68,5 +75,5 @@
 }
 
 .submitButton:hover {
-  background-color: #218838;
+  background-color: #a9c6df;
 }
