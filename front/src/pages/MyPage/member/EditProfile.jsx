@@ -11,7 +11,6 @@ export default function EditProfile() {
     phone: "",
     email: "",
     address: "",
-    addressDetail: "",
   });
 
   const [pwForm, setPwForm] = useState({
@@ -26,6 +25,7 @@ export default function EditProfile() {
       try {
         setLoading(true);
         const me = await getMyProfile();
+        console.log({me})
 
         // 서버 응답 필드명이 다르면 여기서 매핑하면 됨
         setForm({
@@ -34,7 +34,6 @@ export default function EditProfile() {
           phone: me.phone ?? "",
           email: me.email ?? "",
           address: me.address ?? "",
-          addressDetail: me.addressDetail ?? "",
         });
       } catch (err) {
         alert("회원정보를 불러오지 못했어요.");
@@ -136,16 +135,6 @@ export default function EditProfile() {
           <div className={styles.row}>
             <label className={styles.label}>주소</label>
             <input className={styles.input} name="address" value={form.address} onChange={onChange} />
-          </div>
-
-          <div className={styles.row}>
-            <label className={styles.label}>상세주소</label>
-            <input
-              className={styles.input}
-              name="addressDetail"
-              value={form.addressDetail}
-              onChange={onChange}
-            />
           </div>
 
           <div className={styles.rowRight}>
