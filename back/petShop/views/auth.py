@@ -180,4 +180,13 @@ def login():
 @jwt_required()
 def me():
     current_user = get_jwt_identity()
-    return jsonify({"user": current_user}), 200
+    user = User.query.get(current_user)
+    print(current_user)
+    return jsonify({
+        "user_id": user.user_id,
+        "nickname" : user.nickname,
+        "email": user.email,
+        "phone" : user.phone,
+        "address": user.default_address,
+    }) ,200
+
