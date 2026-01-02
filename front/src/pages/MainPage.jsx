@@ -1,43 +1,193 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Alert, Carousel, Container, Spinner } from "react-bootstrap";
+import styles from "./Mainpage.module.css";
+import { useNavigate } from "react-router-dom";
+import { fetchProducts } from "../api/productApi";
 
-/**
- * [Base Version] MainPage Component
- * - 2025-12-24: 1920px/1200px 레이아웃 규격 복구 및 메인 섹션 구성.
- */
 function MainPage() {
-  const bestItems = Array.from({ length: 5 }, (_, i) => ({ id: i + 1, title: `BEST 상품 ${i + 1}` }));
+
+  const navigate = useNavigate();
+
+  // 펫 타입
+  const [pet, setPet] = useState(null);
+
+  // 백에서 받아올 아이템
+  const [bestItems, setBestItems] = useState([]);
+  const [recommend, setRecommend] = useState([]);
+
+  // 로딩 에러처리
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const getImageSrc = (item) => {
+    const url = (item?.imgUrl ?? "").trim();
+    return url ? url : `${process.env.PUBLIC_URL}/images/no-image.png`;
+  };
+
+  useEffect(() => {
+    let alive = true; // 언마운트/요청 꼬임 방지 (setState 경고 방지용)
+
+    async function load() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const bestData = await fetchProducts({
+          pet_type: pet ?? undefined, // null이면 안 보냄
+          sort: "views_desc",
+          limit: 8,
+          page: 1,
+        });
+        const recommendData = await fetchProducts({
+          pet_type: pet ?? undefined, // null이면 안 보냄
+          sort: "review_count_desc",
+          limit: 8,
+          page: 1,
+        })
+
+        if (!alive) return;
+
+        // items 안전 처리
+        setBestItems(Array.isArray(bestData?.items) ? bestData.items : []);
+        setRecommend(Array.isArray(recommendData?.items) ? recommendData.items : []);
+      } catch (e) {
+        if (!alive) return;
+        setError("상품 목록을 불러오는 중 오류가 발생했습니다.");
+        setBestItems([]);
+        setRecommend([]);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      alive = false;
+    };
+  }, [pet]);
 
   return (
-    <div className="main-page">
-      <div className="main-page-inner">
-        {/* 상단 슬라이더 */}
-        <section className="slider-container">
-          <h2>Main Slider (1200px)</h2>
-        </section>
+    <Container className={styles.container}>
+      {/* 로딩 중 표시 */}
+      {loading && (
+        <div className="d-flex justify-content-center my-4">
+          <Spinner animation="border" />
+        </div>
+      )}
 
-        {/* 베스트 상품 그리드 */}
-        <section className="product-grid-container" style={{ marginTop: '40px' }}>
-          <h3>BEST ITEMS</h3>
-          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-            {bestItems.map(item => (
-              <div key={item.id} className="product-card">
-                <div className="product-image-placeholder">IMG</div>
-                <p>{item.title}</p>
+      {/* 에러 표시 */}
+      {!loading && error && (
+        <Alert variant="danger" className="my-3">
+          {error}
+        </Alert>
+      )}
+
+      {/* 정상 렌더 */}
+      {!loading && !error && (
+          <div className={styles.main}>
+            <div>
+              {/* 상단 슬라이더 */}
+              <section className={styles.slider}>
+                <Carousel>
+                  <Carousel.Item interval={4000}>
+                    <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner1.jpg`} alt="banner1"></img>
+                  </Carousel.Item>
+                  <Carousel.Item interval={4000}>
+                    <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner2.jpg`} alt="banner2"></img>
+                  </Carousel.Item>
+                  <Carousel.Item interval={4000}>
+                    <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner3.jpg`} alt="banner3"></img>
+                  </Carousel.Item>
+                  <Carousel.Item interval={4000}>
+                    <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner4.jpg`} alt="banner4"></img>
+                  </Carousel.Item>
+                  <Carousel.Item interval={4000}>
+                    <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner5.jpg`} alt="banner5"></img>
+                  </Carousel.Item>
+                  <Carousel.Item interval={4000}>
+                    <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner6.jpg`} alt="banner6"></img>
+                  </Carousel.Item>
+                  <Carousel.Item interval={4000}>
+                    <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner7.jpg`} alt="banner7"></img>
+                  </Carousel.Item>
+                </Carousel>
+              </section>
+
+              <section className={styles.categorySection}>
+                <button className={`${styles.categoryBox} ${styles.dog}`} onClick={() => setPet("dog")}>
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/banner/dog.png`}
+                    alt="강아지"
+                    className={styles.categoryImg}
+                  />
+                  <p className={styles.categoryText}>강아지</p>
+                </button>
+                <button className={`${styles.categoryBox} ${styles.cat}`} onClick={() => setPet("cat")}>
+                  <img
+                    src={`${process.env.PUBLIC_URL}/images/banner/cat.png`}
+                    alt="고양이"
+                    className={styles.categoryImg}
+                  />
+                  <p className={styles.categoryText}>고양이</p>
+                </button>
+              </section>
+
+              <section className={styles.best}>
+                <h3>BEST ITEMS</h3>
+                <div className={styles.bestitems}>
+                  {bestItems.map(item => (
+                    <div key={item.id} className={styles.productCard} onClick={() => navigate(`/product/${item.id}`)}>
+                      <img className={styles.productImg} src={getImageSrc(item)} alt={item.title || "상품이미지"} onError={(e) => {
+                        e.currentTarget.src = `${process.env.PUBLIC_URL}/images/no-image.png`;
+                      }}></img>
+                      <p className={styles.productTitle}>{item.title}</p>
+                      <p className={styles.productPrice}>
+                        {Number(item.price || 0).toLocaleString()}원
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className={styles.best}>
+                <h3>RECOMMEND ITEMS</h3>
+                <div className={styles.bestitems}>
+                  {recommend.map((item) => (
+                    <div
+                      key={item.id}
+                      className={styles.productCard}
+                      onClick={() => navigate(`/product/${item.id}`)}
+                    >
+                      <img
+                        className={styles.productImg}
+                        src={getImageSrc(item)}
+                        alt={item.title || "상품이미지"}
+                        onError={(e) => {
+                          e.currentTarget.src = `${process.env.PUBLIC_URL}/images/no-image.png`
+                        }}
+                      />
+                      <p className={styles.productTitle}>{item.title}</p>
+                      <p className={styles.productPrice}>
+                        {Number(item.price || 0).toLocaleString()}원
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <div>
+                <div>
+                  리뷰
+                </div>
+                <div>
+                  공지사항
+                </div>
               </div>
-            ))}
+            </div>
           </div>
-        </section>
-      </div>
-    </div>
-  );
-}
+      )}
+    </Container>
+  )
+};
 
 export default MainPage;
-
-/* =========================================================================
- *  2025-12-24: 수정 및 추가 내역 (Team History)
- * -------------------------------------------------------------------------
- * - 작성자: danayang3
- * - 내용: 메인 페이지 기본 레이아웃 복구. 
- * - 상세: App.css에 정의된 전역 규격(1200px 중앙 정렬)을 사용하도록 구조화함.
- * ========================================================================= */

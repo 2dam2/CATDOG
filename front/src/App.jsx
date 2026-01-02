@@ -80,7 +80,7 @@ export default function App() {
           <Route path="/Noticeboard/:id" element={<NoticeDetail />} />
           <Route path="/Noticeboard/edit/:id" element={<EditPost />} /> 
           <Route path="/order" element={<Order />} />
-          {/* <Route path="/view" element={<Recent />} /> */}
+          <Route path="/view" element={<Recent />} />
 
           {/* ✅ 마이페이지 */}
           <Route path="mypage" element={<MyPageLayout />}>

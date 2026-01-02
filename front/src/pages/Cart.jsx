@@ -16,9 +16,9 @@ export default function Cart() {
       checked: true,
 
       // product 정보(서버가 product.to_dict() 주는 형태)
-      name: c.product?.name ?? `상품 #${c.product_id}`,
+      name: c.product?.title ?? `상품 #${c.product_id}`,
       price: c.product?.price ?? 0,
-      image: c.product?.image ?? "https://via.placeholder.com/90",
+      image: c.product?.imgUrl ?? "https://via.placeholder.com/90",
     }));
 
   const loadCart = async () => {
