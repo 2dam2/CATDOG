@@ -179,14 +179,58 @@ def login():
 @bp.get("/me")
 @jwt_required()
 def me():
-    current_user = get_jwt_identity()
-    user = User.query.get(current_user)
-    print(current_user)
+    current_user = get_jwt_identity()  # 여기엔 user_id 문자열이 들어옴
+    user = User.query.filter_by(user_id=current_user).first()
+
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
     return jsonify({
         "user_id": user.user_id,
-        "nickname" : user.nickname,
+        "nickname": user.nickname,
         "email": user.email,
-        "phone" : user.phone,
+        "phone": user.phone,
         "address": user.default_address,
-    }) ,200
+    }), 200
 
+@bp.put("/me")
+@jwt_required()
+def update_me():
+    current_user = get_jwt_identity()  # 지금 너는 identity=user_id 문자열로 쓰고 있음
+    user = User.query.filter_by(user_id=current_user).first()
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    data = request.get_json() or {}
+
+    # 프론트가 보내는 키 이름이 뭔지에 맞춰서 매핑
+    # (예: nickname/name, phone, email, address/default_address 등)
+    nickname = data.get("nickname") or data.get("name")
+    phone = data.get("phone")
+    email = data.get("email")
+    address = data.get("address") or data.get("default_address") or data.get("defaultAddress")
+
+    if nickname is not None:
+        user.nickname = nickname.strip()
+
+    if phone is not None:
+        user.phone = phone.strip()
+
+    if email is not None:
+        user.email = email.strip()
+
+    if address is not None:
+        user.default_address = address.strip()
+
+    db.session.commit()
+
+    return jsonify({
+        "ok": True,
+        "user_id": user.user_id,
+        "nickname": user.nickname,
+        "email": user.email,
+        "phone": user.phone,
+        "address": user.default_address,
+    }), 200

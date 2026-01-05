@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import styles from "./EditProfile.module.css";
-import { getMyProfile, updateMyProfile, changePassword } from "../../../api/memberApi"; // 정보변경에 미리값이 입력되는거 여기서 가져옴
+import {
+  getMyProfile,
+  updateMyProfile,
+  changePassword,
+} from "../../../api/memberApi";
 
 export default function EditProfile() {
   const [loading, setLoading] = useState(true);
@@ -25,15 +29,16 @@ export default function EditProfile() {
       try {
         setLoading(true);
         const me = await getMyProfile();
-        console.log({me})
+        console.log({ me });
 
-        // 서버 응답 필드명이 다르면 여기서 매핑하면 됨
+        // ✅ 백 GET /api/auth/me 응답 키 기준 매핑
+        // (네 백은 "address"로 내려주고 있음)
         setForm({
-          userId: me.userId ?? "",
-          name: me.name ?? "",
+          userId: me.user_id ?? "",
+          name: me.nickname ?? "",
           phone: me.phone ?? "",
           email: me.email ?? "",
-          address: me.address ?? "",
+          address: me.address ?? "", // ✅ 여기 수정 (default_address -> address)
         });
       } catch (err) {
         alert("회원정보를 불러오지 못했어요.");
@@ -56,16 +61,25 @@ export default function EditProfile() {
     setPwForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ 2) 기본정보 저장
+  // ✅ 2) 기본정보 저장 (payload로 "싸서" PUT 보내기)
   const onSaveProfile = async (e) => {
     e.preventDefault();
 
     // 프론트 검증(최소)
-    if (!form.name.trim()) return alert("이름을 입력해 주세요.");
     if (!form.email.trim()) return alert("이메일을 입력해 주세요.");
 
     try {
-      await updateMyProfile(form);
+      // ✅ 여기서 payload를 만들어서 백으로 보냄
+      // userId/name은 수정 대상이 아니니까 제외(=안 보냄)
+      const payload = {
+        phone: form.phone,
+        email: form.email,
+        address: form.address,
+        // 이름까지 수정하게 할 거면 아래 한 줄 추가:
+        // nickname: form.name,
+      };
+
+      await updateMyProfile(payload);
       alert("회원정보가 저장됐어요!");
     } catch (err) {
       alert("저장에 실패했어요.");
@@ -115,17 +129,28 @@ export default function EditProfile() {
 
           <div className={styles.row}>
             <label className={styles.label}>이름</label>
-            <input className={styles.input} name="name" value={form.name} onChange={onChange} />
+            {/* 이름을 수정 가능하게 하려면 disabled 빼고 onChange 추가 */}
+            <input className={styles.input} name="name" value={form.name} disabled />
           </div>
 
           <div className={styles.row}>
             <label className={styles.label}>휴대폰</label>
-            <input className={styles.input} name="phone" value={form.phone} onChange={onChange} />
+            <input
+              className={styles.input}
+              name="phone"
+              value={form.phone}
+              onChange={onChange}
+            />
           </div>
 
           <div className={styles.row}>
             <label className={styles.label}>이메일</label>
-            <input className={styles.input} name="email" value={form.email} onChange={onChange} />
+            <input
+              className={styles.input}
+              name="email"
+              value={form.email}
+              onChange={onChange}
+            />
           </div>
         </section>
 
@@ -134,7 +159,12 @@ export default function EditProfile() {
 
           <div className={styles.row}>
             <label className={styles.label}>주소</label>
-            <input className={styles.input} name="address" value={form.address} onChange={onChange} />
+            <input
+              className={styles.input}
+              name="address"
+              value={form.address}
+              onChange={onChange}
+            />
           </div>
 
           <div className={styles.rowRight}>
@@ -149,7 +179,11 @@ export default function EditProfile() {
         </section>
 
         <div className={styles.actions}>
-          <button type="button" className={styles.cancelBtn} onClick={() => window.history.back()}>
+          <button
+            type="button"
+            className={styles.cancelBtn}
+            onClick={() => window.history.back()}
+          >
             취소
           </button>
           <button type="submit" className={styles.saveBtn}>

@@ -175,11 +175,11 @@ function MainPage() {
                 </div>
               </section>
 
-              <div>
-                <div>
+              <div className={styles.revnot}>
+                <div className={styles.review}>
                   리뷰
                 </div>
-                <div>
+                <div className={styles.notice}>
                   공지사항
                 </div>
               </div>

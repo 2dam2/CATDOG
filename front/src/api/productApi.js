@@ -17,3 +17,9 @@ export async function fetchReviews(productId, page, sort) {
   );
   return res.data;
 }
+
+export async function createReview(productId, formData) {
+  const res = await client.post(
+    `api/product/${productId}/reviews`, formData);
+    return res.data;
+}

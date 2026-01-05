@@ -22,6 +22,13 @@ def create_app():
     # =========================
     # 1. 기본 시크릿 설정
     # =========================
+
+    UPLOAD_ROOT = os.path.join("static", "uploads")
+    os.makedirs(UPLOAD_ROOT, exist_ok=True)
+
+    app.config["UPLOAD_ROOT"] =UPLOAD_ROOT
+    app.config["MAX_CONTENT_LENGTH"] = 5*1024*1024
+
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev_secret_key")
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "dev_jwt_secret_key")
 

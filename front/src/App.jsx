@@ -27,7 +27,7 @@ import EditProfile from "./pages/MyPage/member/EditProfile";
 import Withdraw from "./pages/MyPage/member/Withdraw";
 
 // 기타
-import MyQna from "./pages/MyPage/MyQna";
+// import MyQna from "./pages/MyPage/MyQna";
 import MyReview from "./pages/MyPage/MyReview";
 import Recent from "./components/Recent";
 
@@ -95,7 +95,7 @@ export default function App() {
             <Route path="member/edit" element={<EditProfile />} />
             <Route path="member/withdraw" element={<Withdraw />} />
 
-            <Route path="qna" element={<MyQna />} />
+            {/* <Route path="qna" element={<MyQna />} /> */}
             <Route path="review" element={<MyReview />} />
           </Route>
 

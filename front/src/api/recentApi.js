@@ -8,3 +8,4 @@ export async function fetchRecent(){
     const res = await client.get("/api/recent");
     return res.data.items;
 }
+
