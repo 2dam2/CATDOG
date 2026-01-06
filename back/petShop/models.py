@@ -25,8 +25,12 @@ class User(db.Model):
 
     phone = db.Column(db.String(20), unique=True, nullable=True)
 
+    role = db.Column(db.String(20), nullable=False, default="USER" )
+
     # ✅ 선호 반려동물 (다중 선택 가능) ex) ["dog", "cat"]
-    pet_list = db.Column(JSON, nullable=True)
+    pet_list = db.Column(JSON, nullable=True )
+
+
 
 
 class Address(db.Model):
@@ -300,7 +304,7 @@ class Review(db.Model):
             "img_url": self.img_url,
             "rating": self.rating,
             "create_date": self.create_date.isoformat(),
-            "writer": f"구매자{self.user_id}"
+            "writer": f"구매자{self.id}"
         }
 # ============================================
 # 7. pet (내가 키우는 동물에 대한 정보)

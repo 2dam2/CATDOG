@@ -192,6 +192,7 @@ def me():
         "email": user.email,
         "phone": user.phone,
         "address": user.default_address,
+        "role" : user.role,
     }), 200
 
 @bp.put("/me")

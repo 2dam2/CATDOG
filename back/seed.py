@@ -33,6 +33,7 @@ with app.app_context():
         password="1234",
         nickname="관리자",
         email="admin@example.com",
+        role="admin",
     )
     db.session.add(admin)
     db.session.flush()  # ✅ admin.id 확보 (commit 대신 flush)

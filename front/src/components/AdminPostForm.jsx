@@ -5,7 +5,7 @@ import styles from "./PostForm.module.css";
 import { createPost} from "../api/postApi";
 import { fetchMe } from "../api/authApi";
 
-export default function PostForm() {
+export default function AdminPostForm() {
   const navigate = useNavigate();
 
   // 게시판 타입
@@ -85,9 +85,9 @@ export default function PostForm() {
             value={boardType}
             onChange={(e) => setBoardType(e.target.value)}
           >
-            <option value="FREE">자유</option>
+            <option value="EVENT">이벤트</option>
             <option value="QNA">Q&A</option>
-            <option value="NOTICE">공지 (관리자)</option>
+            <option value="NOTICE">공지</option>
           </select>
         </div>
 

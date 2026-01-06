@@ -40,6 +40,7 @@ import Noticeboard from "./components/Noticeboard";
  import NoticeDetail from "./components/NoticeDetail";
  import EditPost from "./components/EditPost";
 import Order from "./components/Order";
+import AdminPostForm from "./components/AdminPostForm";
 
 
 /** ✅ 네비바가 필요한 페이지들의 공통 틀 */
@@ -80,6 +81,7 @@ export default function App() {
           <Route path="/Noticeboard/:id" element={<NoticeDetail />} />
           <Route path="/Noticeboard/edit/:id" element={<EditPost />} /> 
           <Route path="/order" element={<Order />} />
+          <Route path="/AdminPostForm" element={<AdminPostForm />} />
           {/* <Route path="/view" element={<Recent />} /> */}
 
           {/* ✅ 마이페이지 */}
