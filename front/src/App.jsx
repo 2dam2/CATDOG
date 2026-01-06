@@ -27,7 +27,7 @@ import EditProfile from "./pages/MyPage/member/EditProfile";
 import Withdraw from "./pages/MyPage/member/Withdraw";
 
 // 기타
-import MyQna from "./pages/MyPage/MyQna";
+// import MyQna from "./pages/MyPage/MyQna";
 import MyReview from "./pages/MyPage/MyReview";
 // import Recent from "./components/Recent";
 
@@ -77,7 +77,7 @@ export default function App() {
           <Route path="/events" element={<EventPage />} /> {/* Navbar의 /events와 매핑 */}
           <Route path="/support" element={<CustomerCenterPage />} /> {/* Navbar의 /support와 매핑 */}
           <Route path="/Noticeboard" element={<Noticeboard />} />
-           <Route path="/Noticeboard/:id" element={<NoticeDetail />} />
+          <Route path="/Noticeboard/:id" element={<NoticeDetail />} />
           <Route path="/Noticeboard/edit/:id" element={<EditPost />} /> 
           <Route path="/order" element={<Order />} />
           {/* <Route path="/view" element={<Recent />} /> */}
@@ -95,7 +95,7 @@ export default function App() {
             <Route path="member/edit" element={<EditProfile />} />
             <Route path="member/withdraw" element={<Withdraw />} />
 
-            <Route path="qna" element={<MyQna />} />
+            {/* <Route path="qna" element={<MyQna />} /> */}
             <Route path="review" element={<MyReview />} />
           </Route>
 

@@ -4,7 +4,7 @@ import { Container, Spinner, Alert, Pagination } from 'react-bootstrap';
 import { useNavigate, useParams } from "react-router-dom";
 
 import styles from "./Product.module.css";
-import { fetchProductDetail, fetchReviews } from "../api/productApi";
+import { createReview, fetchProductDetail, fetchReviews } from "../api/productApi";
 import { fetchMyCart, addCart, updateCart } from "../api/cartApi";
 
 const Product = () => {
@@ -24,6 +24,11 @@ const Product = () => {
 
     // 밑에 상세페이지 부분
     const [activeTab, setActiveTab] = useState("info");
+
+    // 리뷰 CREATE
+    const [rating, setRating] = useState(5);
+    const [content, setContent] = useState("");
+    const [imgFile, setImgFile] = useState(null);
 
     // 리뷰관련 (리뷰, 페이지, 정렬)
     const [reviews, setReviews] = useState([]);
@@ -56,7 +61,6 @@ const Product = () => {
             try {
                 const data = await fetchProductDetail(id);
                 // 안전 처리 (없으면 기본값)
-                // ***** models에 category랑 sub_category 차이 물어보고 같으면 빼기 *****
                 setProduct({
                     id: data?.id ?? Number(id), // 서버가 id주면 그 값을, 안 주면 url에 id를 숫자로 써라
                     title: data?.title ?? "",
@@ -89,6 +93,8 @@ const Product = () => {
             alive = false;
         };
     }, [id]);
+
+
 
     // 가격
     const price = Number(product.price)
@@ -169,6 +175,30 @@ const Product = () => {
     const startPage = Math.floor((page - 1) / PAGE_GROUP) * PAGE_GROUP + 1;
     const endPage = Math.min(startPage + PAGE_GROUP - 1, totalPages);
 
+    // 리뷰 생성
+    const submitReview = async (e) => {
+        // 페이지 새로고침 X (새로고침되면 입력내용 초기화, 요청이 중간에 끊길 수 O)
+        e.preventDefault();
+
+        const fd = new FormData();
+        fd.append("rating", rating);
+        fd.append("content", content);
+        if (imgFile) fd.append("image", imgFile);
+
+        try {
+            await createReview(id, fd);
+
+            setContent("");
+            setRating(5);
+            setImgFile(null);
+
+            setSort("id_desc");
+            setPage(1);
+        } catch (err) {
+            setReverr(err?.response?.data?.message || "리뷰 등록 실패");
+        }
+    };
+
     useEffect(() => {
         if (!product?.id) return;
 
@@ -187,6 +217,9 @@ const Product = () => {
             }
         })();
     }, [product?.id, page, sort]);
+
+
+
 
     return (
         <Container className="my-4">
@@ -320,6 +353,27 @@ const Product = () => {
                                 {reverr}
                             </Alert>
                         )}
+
+                        <form onSubmit={submitReview} className={styles.reviewForm}>
+                            <select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
+                                {[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{n}점</option>)}
+                            </select>
+                            <textarea
+                                // 변하는 값 (state값)이라서 { content }
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                                placeholder="리뷰를 작성해주세요"
+                            />
+
+                            <input
+                                // formData 규칙 "image" = 서버로 보내는 key 이름(문자열)
+                                type="file"
+                                // image/* = 파일 선택창에서 이미지 파일만 보이게 필터링
+                                accept="image/*"
+                                onChange={(e) => setImgFile(e.target.files?.[0] ?? null)}
+                            />
+                            <button type="submit">확인</button>
+                        </form>
                         {!reverr && reviews.length === 0 && (
                             <div className="text-center text-muted my-3">
                                 아직 등록된 리뷰가 없습니다.

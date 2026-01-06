@@ -9,13 +9,16 @@ export async function register(payload) {
 }
 
 export async function login(payload) {
-  // payload 예: { userId, password }
   const res = await client.post("/api/auth/login", payload);
+  console.log("LOGIN res.data =", res.data);
 
-  // 서버가 토큰을 body로 주는 방식이면 저장
   const token = res.data?.accessToken;
-  if (token) localStorage.setItem("accessToken", token);
+  
 
+  if (token) {console.log("TOKEN =", token);
+    localStorage.setItem("accessToken", token);
+    console.log("STORED =", localStorage.getItem("accessToken"));
+  }
   return res.data;
 }
 
@@ -36,3 +39,9 @@ export async function checkUserId(userId) {
   return res.data; // { ok: true/false, msg: "..." }
 }
 //회원정보 검증 api
+
+// 내 정보 가져오기
+export async function fetchMe() {
+  const res = await client.get("/api/auth/me");
+  return res.data; // { user_id, nickname, email, phone, address }
+}
