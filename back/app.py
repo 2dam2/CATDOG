@@ -13,6 +13,7 @@ from petShop.views.review import review_bp
 from petShop.views.wishlist import bp as wishlist_bp
 from petShop.views.noticeboard import board_bp
 from petShop.views.auth import bp as auth_bp
+from petShop.views.newpost import post_bp
 
 migrate = Migrate()
 
@@ -87,6 +88,7 @@ def create_app():
     app.register_blueprint(review_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(board_bp)
+    app.register_blueprint(post_bp)
 
     return app
 

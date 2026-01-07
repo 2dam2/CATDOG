@@ -40,6 +40,7 @@ import Noticeboard from "./components/Noticeboard";
  import NoticeDetail from "./components/NoticeDetail";
  import EditPost from "./components/EditPost";
 import Order from "./components/Order";
+import AdminPostForm from "./components/AdminPostForm";
 
 
 /** ✅ 네비바가 필요한 페이지들의 공통 틀 */
@@ -80,7 +81,10 @@ export default function App() {
           <Route path="/Noticeboard/:id" element={<NoticeDetail />} />
           <Route path="/Noticeboard/edit/:id" element={<EditPost />} /> 
           <Route path="/order" element={<Order />} />
-          <Route path="/view" element={<Recent />} />
+
+          <Route path="/AdminPostForm" element={<AdminPostForm />} />
+          {/* <Route path="/view" element={<Recent />} /> */}
+
 
           {/* ✅ 마이페이지 */}
           <Route path="mypage" element={<MyPageLayout />}>
@@ -108,12 +112,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
-
-// ==============================================================================
-// [Gemini 작업 로그] - 2025.12.26
-// 1. 라우팅 추가: /wishlist (찜목록/마이페이지) 경로 등록 및 컴포넌트 임포트.
-// 2. 레이아웃 유지: MainLayout 내부에 배치하여 Navbar/Footer 공통 적용.
-// ==============================================================================

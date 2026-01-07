@@ -2,19 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./PostForm.module.css";
 
-
-import { createPost } from "../api/postApi";
-
+import { createPost} from "../api/postApi";
 import { fetchMe } from "../api/authApi";
 
-export default function PostForm() {
+export default function AdminPostForm() {
   const navigate = useNavigate();
 
   // 게시판 타입
   const [boardType, setBoardType] = useState("FREE");
 
   const [title, setTitle] = useState("");
-
   const [content, setContent] = useState("");
   const [attachment, setAttachment] = useState(null);
 
@@ -33,19 +30,16 @@ export default function PostForm() {
 
     (async () => {
       try {
-
         const me = await fetchMe(); // { nickname, email }
         setWriter(me?.nickname || "");
         setEmail(me?.email || "");
       } catch (err) {
         alert("로그인 정보 확인에 실패했습니다.");
-
         localStorage.removeItem("accessToken");
         navigate("/login");
       }
     })();
   }, [navigate]);
-
 
   // ✅ 게시글 등록
   const handleSubmit = async (e) => {
@@ -60,7 +54,6 @@ export default function PostForm() {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("content", content);
-
       formData.append("boardType", boardType);
 
       // ❌ writer / email 안 보냄 (서버가 토큰 기준으로 결정)
@@ -87,25 +80,26 @@ export default function PostForm() {
       <form className={styles.form} onSubmit={handleSubmit}>
         {/* 게시판 타입 */}
         <div className={styles.row}>
-
           <label>게시판</label>
           <select
             value={boardType}
             onChange={(e) => setBoardType(e.target.value)}
           >
-
-            <option value="FREE">자유</option>
+            <option value="EVENT">이벤트</option>
             <option value="QNA">Q&A</option>
-            <option value="NOTICE">공지 (관리자)</option>
+            <option value="NOTICE">공지</option>
           </select>
         </div>
 
         {/* 제목 */}
         <div className={styles.row}>
           <label>제목</label>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} required />
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
         </div>
-
 
         {/* 작성자 (표시용) */}
         <div className={styles.row}>
@@ -117,23 +111,31 @@ export default function PostForm() {
         <div className={styles.row}>
           <label>이메일</label>
           <input value={email} disabled />
-
         </div>
 
         {/* 내용 */}
         <div className={styles.editor}>
-          <textarea value={content} onChange={(e) => setContent(e.target.value)} required />
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            required
+          />
         </div>
 
         {/* 파일 첨부 */}
         <div className={styles.row}>
           <label>파일 첨부</label>
-          <input type="file" onChange={(e) => setAttachment(e.target.files?.[0] ?? null)} />
+          <input
+            type="file"
+            onChange={(e) => setAttachment(e.target.files?.[0] ?? null)}
+          />
         </div>
 
         <div className={styles.actions}>
           <button type="submit">등록하기</button>
-          <button type="button" onClick={() => navigate(-1)}>취소</button>
+          <button type="button" onClick={() => navigate(-1)}>
+            취소
+          </button>
         </div>
       </form>
     </div>
