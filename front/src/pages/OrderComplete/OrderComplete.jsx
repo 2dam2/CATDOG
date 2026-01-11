@@ -14,7 +14,7 @@ export default function OrderComplete() {
 
   const goOrders = () => {
     // 주문내역 페이지가 있으면 거기로
-    navigate("/orders"); // 없으면 원하는 경로로 바꿔도 됨
+    navigate("/mypage/shopping/orders"); // 없으면 원하는 경로로 바꿔도 됨
   };
 
   const goShopping = () => {
