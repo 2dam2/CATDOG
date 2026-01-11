@@ -245,39 +245,50 @@ class Cart(db.Model):
 # 5. Order (주문)
 # ============================================
 class Order(db.Model):
-    __tablename__ = 'order'
+    __tablename__ = "orders"  # ✅ 'order' 대신 'orders' 추천
 
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey('user.id', ondelete='SET NULL'),
+        db.ForeignKey("user.id", ondelete="SET NULL"),
         nullable=True
     )
-    user = db.relationship(
-        'User',
-        backref=db.backref('orders', lazy=True)
-    )
+    user = db.relationship("User", backref=db.backref("orders", lazy=True))
 
-    product_id = db.Column(
-        db.Integer,
-        db.ForeignKey('product.id', ondelete='SET NULL'),
-        nullable=True
-    )
-    product = db.relationship(
-        'Product',
-        backref=db.backref('orders', lazy=True)
-    )
-
-    # 주문 수량
-    count = db.Column(db.Integer, nullable=False, default=1)
-
-    # ✅ 주문 당시 최종 배송 주소 (문자열로 복사해서 저장)
     order_address = db.Column(db.String(255), nullable=False)
-
-    # 주문 당시 사용한 연락처 (옵션)
     order_phone = db.Column(db.String(20), nullable=True)
     ordered_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    # ✅ Order → OrderItem (한 주문에 여러 상품)
+    items = db.relationship(
+        "OrderItem",
+        backref="order",
+        cascade="all, delete-orphan",
+        lazy=True
+    )
+
+# ============================================
+# 5. OrderItem (주문상세)
+# ============================================
+class OrderItem(db.Model):
+    __tablename__ = "order_items"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # ✅ FK는 orders.id 로
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=False)
+
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
+    qty = db.Column(db.Integer, nullable=False)
+
+    # snapshot
+    unit_price = db.Column(db.Integer, nullable=False, default=0)
+    product_name = db.Column(db.String(255))
+    product_image = db.Column(db.String(255))
+
+    # ✅ OrderItem → Product 관계 (상품 정보 접근 편하게)
+    product = db.relationship("Product", lazy=True)
 
 # ============================================
 # 6. Reviews (상품 리뷰)

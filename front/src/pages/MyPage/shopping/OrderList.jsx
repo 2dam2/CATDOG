@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./OrderList.module.css";
 import ReviewModal from "../ReviewModal"; // 경로 유지
-import { getOrders } from "../../../api/orderListApi";
+import { getOrders } from "../../../api/orderApi";
 
 
 const STATUS_OPTIONS = [

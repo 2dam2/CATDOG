@@ -9,7 +9,7 @@ export default function AdminPostForm() {
   const navigate = useNavigate();
 
   // 게시판 타입
-  const [boardType, setBoardType] = useState("FREE");
+  const [boardType, setBoardType] = useState("이벤트");
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -85,9 +85,9 @@ export default function AdminPostForm() {
             value={boardType}
             onChange={(e) => setBoardType(e.target.value)}
           >
-            <option value="EVENT">이벤트</option>
-            <option value="QNA">Q&A</option>
-            <option value="NOTICE">공지</option>
+            <option value="이벤트">이벤트</option>
+            <option value="문의사항">문의사항</option>
+            <option value="공지사항">공지사항</option>
           </select>
         </div>
 

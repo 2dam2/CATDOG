@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from "./Order.module.css";
-import axios from "axios";
+import {}
 
 const Order = () => {
   /* ===== 주문 데이터 ===== */
@@ -38,11 +38,7 @@ const Order = () => {
       return;
     }
 
-    try {
-      const res = await axios.post(
-        "http://localhost:4000/api/payment",
-        orderData
-      );
+    
 
       alert("결제가 완료되었습니다");
       console.log("결제 결과:", res.data);

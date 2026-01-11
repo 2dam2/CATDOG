@@ -6,6 +6,7 @@ import styles from "./Product.module.css";
 import { fetchProductDetail, fetchReviews } from "../api/productApi";
 import { fetchMyCart, addCart, updateCart } from "../api/cartApi";
 import { formatDate } from '../constants/date';
+import { createOrder } from '../api/orderApi';
 
 const Product = () => {
     const { id } = useParams();
@@ -134,28 +135,30 @@ const Product = () => {
     };
 
     // 구매 (지금 cart page는 db에 저장 X, cartStorage = 브라우저에 저장해둠)
+    // 구매하기 (상품페이지 바로구매)
     const buyitem = async () => {
         if (!product?.id) return;
 
         try {
-            const cart = await fetchMyCart();
-            const exist = cart.find((c) => c.product_id === product.id);
+            // qty가 input에서 string으로 들어올 수 있으니 숫자 보정
+            const safeQty = Math.max(1, Number(qty) || 1);
 
-            if (exist) {
-                await updateCart(exist.id, exist.count + 1);
-            } else {
-                await addCart(product.id, 1);
-            }
-            // cart page는 browser에 저장 db로 바꿔달라고 요청하기 + check 표시 되게 할건지 물어보고
-            // navigate(`/cart?buy=${product.id}`); 이렇게 고치고
-            // cart.jsx에 const { search } = useLocation(); const buyProductId = Number(new URLSearchParams(search).get("buy")); → 화면에서만 쓰는 임시 체크상태 추가 (URL로 보냄)
+            // ✅ 주문 생성: items 배열로 보냄
+            const data = await createOrder([
+                { product_id: product.id, qty: safeQty }
+            ]);
 
+            // 백에서 { order_id }를 내려준다는 가정
+            // 1) 주문 상세 페이지가 있으면:
+            // navigate(`/order/${data.order_id}`);
 
-            navigate("/cart");
+            // 2) 지금처럼 /order 한 페이지면:
+            navigate("/order");
         } catch (e) {
-            alert("구매 처리 중 오류가 발생했습니다.");
+            alert(e?.response?.data?.error || e.message || "구매 처리 중 오류가 발생했습니다.");
         }
     };
+
 
     // 밑에 상세페이지 (탭처럼 보이지만 누르면 그 위치로 스크롤 이동시켜줌)
     // behavior: "smooth" 부드럽게 이동, start 섹션 맨 위가 화면 위쪽으로
@@ -241,7 +244,7 @@ const Product = () => {
                                     <img src={`${process.env.PUBLIC_URL}/images/minus.png`} alt="minus" />
                                 </button>
                                 {/* 커서를 바깥으로 클릭했을 때 삼항연산자 실행 = 0이나 문자가 들어가면 1로 바꿔줌 */}
-                                <input type="number" className={`${styles.num} ${styles.value}`} value={qty} min={1} onChange={(e) => setQty(e.target.value)} onBlur={() => setQty(qty < 1 ? 1 : Number(qty))}></input>
+                                <input type="number" className={`${styles.num} ${styles.value}`} value={qty} min={1} onChange={(e) => setQty(Number(e.target.value))} onBlur={() => setQty((q) => Math.max(1, Number(q) || 1))}></input>
                                 <button className={styles.qty} onClick={plus}>
                                     <img src={`${process.env.PUBLIC_URL}/images/plus.png`} alt="plus" />
                                 </button>
@@ -332,11 +335,11 @@ const Product = () => {
                             <div key={r.id}>
                                 <div>{"⭐".repeat(r.rating)}</div>
                                 <div className={styles.meta}>
-                                    <span className={styles.writer}> {r.writer} </span> | 
+                                    <span className={styles.writer}> {r.writer} </span> |
                                     <span className={styles.date}> {formatDate(r.create_date)} </span>
                                 </div>
                                 <div>{r.content}</div>
-                            <hr />
+                                <hr />
                             </div>
                         ))}
 

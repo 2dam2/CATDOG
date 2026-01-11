@@ -47,7 +47,8 @@ def board_list():
     q = Question.query
 
     # ✅ 공지사항은 따로(/notices) 보여줄 거라서 목록에서는 제외
-    q = q.filter(Question.category != "공지사항")
+    q = q.filter(Question.category != "공지사항",
+                 Question.category != "이벤트")
 
     # ✅ 리스트는 "보기만"이라서
     # - 비회원도 전부 보이게(공지 제외)
