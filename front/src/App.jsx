@@ -80,7 +80,7 @@ export default function App() {
           <Route path="/Noticeboard" element={<Noticeboard />} />
           <Route path="/Noticeboard/:id" element={<NoticeDetail />} />
           <Route path="/Noticeboard/edit/:id" element={<EditPost />} /> 
-          <Route path="/order" element={<Order />} />
+          <Route path="/order/:orderId" element={<Order />} />
 
           <Route path="/AdminPostForm" element={<AdminPostForm />} />
           {/* // <Route path="/view" element={<Recent />} /> */}

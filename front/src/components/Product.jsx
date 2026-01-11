@@ -153,7 +153,7 @@ const Product = () => {
             // navigate(`/order/${data.order_id}`);
 
             // 2) 지금처럼 /order 한 페이지면:
-            navigate("/order");
+            navigate(`/order/${data.order_id}`);
         } catch (e) {
             alert(e?.response?.data?.error || e.message || "구매 처리 중 오류가 발생했습니다.");
         }
