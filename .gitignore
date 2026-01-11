@@ -17,6 +17,7 @@ logs/
 *.csv
 *.zip
 *.txt
+back/.venv/
 
 # ===== Front =====
 node_modules/
