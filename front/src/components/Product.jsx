@@ -162,7 +162,15 @@ const Product = () => {
             const data = await createOrder([
                 { product_id: product.id, qty: safeQty }
             ]);
-            navigate("/order", { state: { orderId: data?.order_id } });
+
+
+            // 백에서 { order_id }를 내려준다는 가정
+            // 1) 주문 상세 페이지가 있으면:
+            // navigate(`/order/${data.order_id}`);
+
+            // 2) 지금처럼 /order 한 페이지면:
+            navigate(`/order/${data.order_id}`);
+
         } catch (e) {
             if (is401(e)) return goLogin("/order", { product_d: product.id, qty});
             alert(e?.response?.data?.error || e.message || "구매 처리 중 오류가 발생했습니다.");
