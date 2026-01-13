@@ -1,64 +1,78 @@
 import { useEffect, useState } from "react";
 import styles from "./ReviewModal.module.css";
 
-export default function ReviewModal({ open, item, onClose, onSubmit }) {
+export default function ReviewModal({
+  open,
+  item,
+  onClose,
+  onSubmit,
+  mode = "create",          // "create" | "edit"
+  initialReview = null      // edit일 때 { id, rating, content, img_url }
+}) {
+  const [removeImage, setRemoveImage] = useState(false);
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
 
-  // ✅ 업로드한 파일/미리보기
-  const [files, setFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
+  // ✅ 1장 업로드 기준
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState("");
 
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+
+    if (mode === "edit" && initialReview) {
+      setRating(initialReview.rating ?? 5);
+      setContent(initialReview.content ?? "");
+      setPreview(initialReview.img_url || "");
+      setFile(null);
+      setRemoveImage(false);
+    } else {
       setRating(5);
       setContent("");
-      setFiles([]);
-      setPreviews([]);
+      setPreview("");
+      setFile(null);
+      setRemoveImage(false);
     }
-  }, [open]);
-
-  // ✅ 미리보기 URL 생성/해제
-  useEffect(() => {
-    previews.forEach((url) => URL.revokeObjectURL(url));
-    const next = files.map((f) => URL.createObjectURL(f));
-    setPreviews(next);
-
-    return () => {
-      next.forEach((url) => URL.revokeObjectURL(url));
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [files]);
+  }, [open, mode, initialReview]);
 
   if (!open) return null;
 
-  const handleSubmit = (e) => {
+  const handlePickFile = (e) => {
+    const f = e.target.files?.[0] || null;
+    setFile(f);
+
+    if (f) {
+      setPreview(URL.createObjectURL(f));
+      setRemoveImage(false); // ✅ 새 이미지 선택하면 삭제 체크 해제(교체로 간주)
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    onSubmit({
-      orderId: item?.orderId,
-      orderItemId: item?.orderItemId,
-      rating,
-      content,
-      files, // ✅ 이미지 파일들
-    });
+    if (!content.trim()) {
+      alert("내용을 입력해 주세요.");
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append("rating", String(rating));
+    fd.append("content", content.trim());
+
+    // ✅ 새 이미지 선택한 경우만 전송
+    if (file) fd.append("image", file);
+
+    // ✅ 수정에서 '이미지만 삭제' 요청
+    if (removeImage) fd.append("removeImage", "1");
+
+    const payload =
+      mode === "edit"
+        ? { reviewId: initialReview?.id, formData: fd }
+        : { product_id: item?.product_id, formData: fd };
+
+    await onSubmit(payload);
   };
 
-  const handleChangeFiles = (e) => {
-    const selected = Array.from(e.target.files || []);
-    if (selected.length === 0) return;
-
-    // ✅ 최대 5장 제한
-    const merged = [...files, ...selected].slice(0, 5);
-    setFiles(merged);
-
-    // 같은 파일 다시 선택 가능하게 초기화
-    e.target.value = "";
-  };
-
-  const removeFile = (idx) => {
-    setFiles(files.filter((_, i) => i !== idx));
-  };
 
   const handleBackdropClick = () => onClose();
   const stop = (e) => e.stopPropagation();
@@ -67,14 +81,20 @@ export default function ReviewModal({ open, item, onClose, onSubmit }) {
     <div className={styles.backdrop} onClick={handleBackdropClick}>
       <div className={styles.modal} onClick={stop}>
         <div className={styles.header}>
-          <h3 className={styles.title}>구매후기 작성</h3>
+          <h3 className={styles.title}>
+            {mode === "edit" ? "구매후기 수정" : "구매후기 작성"}
+          </h3>
           <button className={styles.closeBtn} onClick={onClose} type="button">
             ✕
           </button>
         </div>
 
         <div className={styles.productBox}>
-          <img className={styles.thumb} src={item?.imageUrl} alt={item?.productName} />
+          <img
+            className={styles.thumb}
+            src={item?.imageUrl}
+            alt={item?.productName}
+          />
           <div>
             <div className={styles.productTitle}>{item?.productName}</div>
             <div className={styles.subText}>옵션: {item?.optionText}</div>
@@ -107,11 +127,11 @@ export default function ReviewModal({ open, item, onClose, onSubmit }) {
             placeholder="상품은 어땠나요? 솔직한 후기를 남겨주세요 :)"
           />
 
-          {/* ✅ 사진 업로드 */}
+          {/* ✅ 사진 업로드 (1장 + 수정시 이미지 삭제) */}
           <div className={styles.uploadWrap}>
             <div className={styles.uploadTop}>
               <label className={styles.label} style={{ margin: 0 }}>
-                사진 업로드 (최대 5장)
+                사진 업로드
               </label>
 
               <label className={styles.uploadBtn}>
@@ -119,29 +139,50 @@ export default function ReviewModal({ open, item, onClose, onSubmit }) {
                 <input
                   type="file"
                   accept="image/*"
-                  multiple
-                  onChange={handleChangeFiles}
+                  onChange={handlePickFile}
                   className={styles.fileInput}
                 />
               </label>
             </div>
 
-            {previews.length > 0 && (
+            {/* ✅ 프리뷰(기존 또는 새로 선택한 이미지) */}
+            {preview && !removeImage && (
               <div className={styles.previewGrid}>
-                {previews.map((src, idx) => (
-                  <div key={src} className={styles.previewItem}>
-                    <img src={src} alt={`preview-${idx}`} />
-                    <button
-                      type="button"
-                      className={styles.removeBtn}
-                      onClick={() => removeFile(idx)}
-                      aria-label="remove"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
+                <div className={styles.previewItem}>
+                  <img src={preview} alt="preview" />
+                  <button
+                    type="button"
+                    className={styles.removeBtn}
+                    onClick={() => {
+                      setFile(null);
+                      if (mode === "edit" && initialReview?.img_url) {
+                        setPreview(initialReview.img_url);
+                      } else {
+                        setPreview("");
+                      }
+                    }}
+                    aria-label="remove"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
+            )}
+
+            {/* ✅ 수정 모드에서만: 기존 이미지 삭제 */}
+            {mode === "edit" && initialReview?.img_url && (
+              <label className={styles.label} style={{ marginTop: 8 }}>
+                <input
+                  type="checkbox"
+                  checked={removeImage}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setRemoveImage(checked);
+                    if (checked) setFile(null); // 충돌 방지
+                  }}
+                />
+                &nbsp;기존 이미지 삭제
+              </label>
             )}
           </div>
 
@@ -150,7 +191,7 @@ export default function ReviewModal({ open, item, onClose, onSubmit }) {
               취소
             </button>
             <button type="submit" className={styles.submit}>
-              등록하기
+              {mode === "edit" ? "수정하기" : "등록하기"}
             </button>
           </div>
         </form>
