@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./OrderList.module.css";
 import ReviewModal from "../ReviewModal"; // 경로 유지
 import { getOrders, cancelOrder } from "../../../api/orderApi";
+import { createReview } from "../../../api/reviewApi";
 
 
 const STATUS_OPTIONS = [
@@ -81,11 +82,13 @@ export default function OrderList() {
       orderId: order.orderId,
       orderedAt: order.orderedAt,
       orderItemId: item.id,
+      product_id: item.product_id,
       productName: item.name,
       optionText: item.optionText,
       imageUrl: item.imageUrl,
     });
     setReviewOpen(true);
+    console.log("item:", item);
   };
 
   const closeReviewModal = () => {
@@ -93,11 +96,34 @@ export default function OrderList() {
     setSelectedItem(null);
   };
 
-  const handleSubmitReview = (reviewData) => {
-    console.log("✅ 후기 등록 데이터:", reviewData);
-    alert("후기 등록 완료! (임시)");
-    closeReviewModal();
+  const handleSubmitReview = async (reviewData) => {
+    try {
+      const product_id = reviewData.product_id;
+      if (!product_id) {
+        alert("productId가 없어서 리뷰를 등록할 수 없어. 주문목록 응답에 productId가 필요해!");
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append("rating", String(reviewData.rating));
+      fd.append("content", reviewData.content);
+
+      // ✅ 백은 image 1개만 받음(request.files.get("image"))
+      const first = (reviewData.files || [])[0];
+      if (first) fd.append("image", first);
+
+      await createReview(product_id, fd);
+
+      alert("후기 등록 완료!");
+      await handleSearch();
+      closeReviewModal();
+    } catch (e) {
+      alert(e?.response?.data?.message || e?.response?.data?.error || e.message || "후기 등록 실패");
+    }
   };
+
+
+
 
   // ✅ 조회 버튼 눌렀을 때만 서버 호출
   const handleSearch = async () => {
