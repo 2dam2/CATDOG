@@ -4,12 +4,14 @@ import styles from "./Customer.module.css";
 export default function BoardSection({ activeCategory, allPosts }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [openId, setOpenId] = useState(null); // 🦁 Accordion State
   const ITEMS_PER_PAGE = 10;
 
   // 카테고리가 변경되면 검색어와 페이지 초기화
   useEffect(() => {
     setSearchQuery("");
     setCurrentPage(1);
+    setOpenId(null);
   }, [activeCategory]);
 
   // Filter Logic
@@ -28,6 +30,11 @@ export default function BoardSection({ activeCategory, allPosts }) {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
+  };
+
+  // 🦁 Toggle Accordion
+  const toggleAccordion = (id) => {
+    setOpenId(openId === id ? null : id);
   };
 
   return (
@@ -58,13 +65,39 @@ export default function BoardSection({ activeCategory, allPosts }) {
             {currentPosts.length > 0 ? (
               currentPosts.map((r, idx) => {
                 const globalIndex = (idx + 1) + startIndex; 
+                const isOpen = openId === r.id;
+                
                 return (
-                  <div key={r.id} className={styles.boardRow}>
-                    <div className={styles.rowNo}>No. {globalIndex}</div>
-                    <div className={styles.rowCategory}>{r.category}</div>
-                    <div className={styles.rowTitle}>{r.title}</div>
-                    <div className={styles.rowDate}>{r.date}</div>
-                  </div>
+                  <React.Fragment key={r.id}>
+                    <div 
+                        className={`${styles.boardRow} ${isOpen ? styles.activeRow : ''}`} 
+                        onClick={() => toggleAccordion(r.id)}
+                        style={{cursor: 'pointer'}}
+                    >
+                      <div className={styles.rowNo}>No. {globalIndex}</div>
+                      <div className={styles.rowCategory}>{r.category}</div>
+                      <div className={styles.rowTitle} style={{flex: 1, textAlign: 'left', paddingLeft: '20px'}}>
+                        {r.title}
+                        <span style={{float: 'right', color: '#999'}}>{isOpen ? '▲' : '▼'}</span>
+                      </div>
+                    </div>
+                    
+                    {/* 🦁 Accordion Content (Answer) */}
+                    {isOpen && (
+                        <div style={{
+                            padding: '20px 40px',
+                            backgroundColor: '#f9fbfd',
+                            borderBottom: '1px solid #eee',
+                            color: '#556',
+                            lineHeight: '1.6',
+                            whiteSpace: 'pre-wrap',
+                            fontSize: '0.95rem'
+                        }}>
+                            <strong style={{color: '#007bff'}}>A. </strong>
+                            {r.content || "답변 준비 중입니다냥! 고객센터(1588-0000)로 문의주세요."}
+                        </div>
+                    )}
+                  </React.Fragment>
                 );
               })
             ) : (

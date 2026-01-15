@@ -281,7 +281,7 @@ class OrderItem(db.Model):
 
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
     qty = db.Column(db.Integer, nullable=False)
-    status = db.Column(db.String(20), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default="DELIVERED")
 
     # snapshot
     unit_price = db.Column(db.Integer, nullable=False, default=0)
