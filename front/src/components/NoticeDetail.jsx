@@ -153,7 +153,7 @@ export default function NoticeDetail() {
           )}
 
           {/* 목록으로 이동 (메인 액션) */}
-          <button className={styles.listBtn} onClick={() => navigate("prev")}>
+          <button className={styles.listBtn} onClick={() => navigate(-1)}>
             목록으로
           </button> 
         </div>

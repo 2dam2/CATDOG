@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom'; // ✅ 라우터 훅 추가
+import { useLocation, useNavigate } from 'react-router-dom'; 
 import client from '../api/client'; 
 import './Chatbot.css';
 
@@ -9,17 +9,14 @@ const FRAME_RATE = 100;
 const Chatbot = () => {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation(); // ✅ 현재 위치 감지
-  const navigate = useNavigate(); // ✅ 페이지 이동
+  const location = useLocation(); 
+  const navigate = useNavigate(); 
   
-  // ✅ 채팅 상태 관리
   const [messages, setMessages] = useState([
     { text: "안녕하냥! 무엇을 도와줄까냥?", sender: "bot" }
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
-  // ✅ 퀵 버튼 상태 관리
   const [quickQuestions, setQuickQuestions] = useState([]);
   
   const messagesEndRef = useRef(null);
@@ -39,8 +36,16 @@ const Chatbot = () => {
     }
   }, [messages, isOpen]);
 
-  // ✅ 페이지 변경 시 퀵 버튼 업데이트 (RAG 연동 준비)
+  // ✅ 페이지 변경 시 챗봇 리셋 및 퀵 버튼 업데이트
   useEffect(() => {
+    const wasFromChatbot = location.state?.fromChatbot;
+
+    if (!wasFromChatbot) {
+      setMessages([{ text: "안녕하냥! 무엇을 도와줄까냥?", sender: "bot" }]);
+      setInputValue("");
+      setIsLoading(false);
+    }
+    
     async function loadSuggestions() {
       try {
         const res = await client.post('/api/chat/suggestions', { 
@@ -51,43 +56,83 @@ const Chatbot = () => {
         console.error("퀵 버튼 로드 실패:", e);
       }
     }
+    
     if (isOpen) {
       loadSuggestions();
     }
-  }, [location.pathname, isOpen]); // 창이 열리거나 페이지가 바뀔 때 실행
+  }, [location.pathname, isOpen]); // 🦁 isOpen 추가하여 처음 열 때도 로드되게 함
 
-  const handleToggleChat = () => {
-    setIsOpen(!isOpen);
-  };
+  const handleToggleChat = () => setIsOpen(!isOpen);
 
-  // ✅ 퀵 버튼 클릭 핸들러
-  const handleQuickClick = (q) => {
-    // 1. 사용자 질문 표시
-    setMessages(prev => [...prev, { text: q.label, sender: "user" }]);
+  // 🦁 Link Parser (Markdown -> React Router)
+  const renderMessage = (text) => {
+    if (!text) return null;
     
-    // 2. 봇 답변 표시 (0.5초 딜레이로 자연스럽게)
-    setTimeout(() => {
-      setMessages(prev => [...prev, { text: q.answer, sender: "bot" }]);
-      
-      // 3. 링크가 있으면 이동
-      if (q.link) {
-        navigate(q.link);
+    const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
       }
-    }, 500);
+      
+      const title = match[1];
+      const url = match[2];
+      
+      const handleLinkClick = (linkUrl) => {
+          try {
+              if (linkUrl.startsWith("http")) {
+                  const urlObj = new URL(linkUrl);
+                  if (urlObj.origin === window.location.origin) {
+                      navigate(urlObj.pathname + urlObj.search, { state: { fromChatbot: true } });
+                  } else {
+                      window.open(linkUrl, "_blank");
+                  }
+              } else {
+                  navigate(linkUrl, { state: { fromChatbot: true } });
+              }
+          } catch (e) {
+              console.error("Link Error:", e);
+              navigate(linkUrl, { state: { fromChatbot: true } }); 
+          }
+      };
+
+      parts.push(
+        <span 
+          key={lastIndex} 
+          className="chat-link" 
+          onClick={() => handleLinkClick(url)}
+          style={{color: '#007bff', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline'}}
+        >
+          {title}
+        </span>
+      );
+      
+      lastIndex = regex.lastIndex;
+    }
+    
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts.length > 0 ? parts : text;
   };
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
-
-    const userMsg = inputValue;
-    setInputValue(""); 
-
-    setMessages(prev => [...prev, { text: userMsg, sender: "user" }]);
+  // 🦁 Reusable Message Sender
+  const sendMessage = async (text) => {
+    setMessages(prev => [...prev, { text: text, sender: "user" }]);
     setIsLoading(true);
 
     try {
-      const response = await client.post('/api/chat', { message: userMsg });
-      const botReply = response.data.reply;
+      const response = await client.post('/api/chat', { 
+          message: text, 
+          history: messages.slice(-14) // 🦁 Remember last 7 turns (14 messages)
+      });
+      console.log("🦁 API Response:", response.data);
+      
+      const botReply = response.data.reply || "답변을 생성하지 못했다냥 😿";
       setMessages(prev => [...prev, { text: botReply, sender: "bot" }]);
     } catch (error) {
       console.error("Chat Error:", error);
@@ -95,6 +140,23 @@ const Chatbot = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleQuickClick = async (q) => {
+    if (q.cached_answer) {
+      setMessages(prev => [...prev, { text: q.label, sender: "user" }]);
+      setMessages(prev => [...prev, { text: q.cached_answer, sender: "bot" }]);
+      if (q.link) navigate(q.link, { state: { fromChatbot: true } });
+      return;
+    }
+    sendMessage(q.label);
+  };
+
+  const handleSendMessage = () => {
+    if (!inputValue.trim()) return;
+    const msg = inputValue;
+    setInputValue("");
+    sendMessage(msg);
   };
 
   const handleKeyPress = (e) => {
@@ -116,28 +178,23 @@ const Chatbot = () => {
           <div className="chat-body">
             {messages.map((msg, index) => (
               <div key={index} className={`chat-message ${msg.sender}`}>
-                <div className={`message-bubble ${msg.loading ? 'loading' : ''}`}>
-                  {msg.text}
+                <div className={`message-bubble ${msg.loading ? 'loading' : ''}`} style={{whiteSpace: 'pre-wrap'}}>
+                  {renderMessage(msg.text)}
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="chat-message bot">
-                <div className="message-bubble loading">...생각중이다냥...</div>
+                <div className="message-bubble loading">...생각 중이다냥...</div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* ✅ 퀵 버튼 영역 (입력창 바로 위) */}
           {quickQuestions.length > 0 && (
             <div className="quick-replies">
               {quickQuestions.map((q, idx) => (
-                <button 
-                  key={idx} 
-                  className="quick-chip" 
-                  onClick={() => handleQuickClick(q)}
-                >
+                <button key={idx} className="quick-chip" onClick={() => handleQuickClick(q)}>
                   {q.label}
                 </button>
               ))}
@@ -166,14 +223,3 @@ const Chatbot = () => {
 };
 
 export default Chatbot;
-
-// ==============================================================================
-// [Gemini 작업 로그] - 26-01-04
-// 1. 상태 관리 추가: `messages`, `inputValue`, `isLoading`, `quickQuestions`.
-// 2. 메시지 전송 로직 구현: Axios(`client`)를 사용하여 `/api/chat` 호출.
-// 3. UI 개선: 테마 적용, 자동 스크롤, 엔터키 이벤트.
-// 4. 컨텍스트 인식 퀵 버튼(Context-Aware Quick Actions):
-//    - `useLocation`으로 현재 페이지 감지.
-//    - `/api/chat/suggestions` 호출하여 페이지별 맞춤 질문 로드.
-//    - 버튼 클릭 시 즉답 및 페이지 이동(`useNavigate`) 처리.
-// ==============================================================================

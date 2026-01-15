@@ -3,10 +3,9 @@ import { Alert, Carousel, Container, Spinner } from "react-bootstrap";
 import styles from "./Mainpage.module.css";
 import { useNavigate } from "react-router-dom";
 import { fetchMainReviews, fetchProducts } from "../api/productApi";
-import { fetchNotice } from "../api/boardApi";
+import { fetchNotice } from "../api/boardApi"; // ✅ 공지 API
 
 function MainPage() {
-
   const navigate = useNavigate();
 
   // 펫 타입
@@ -32,7 +31,7 @@ function MainPage() {
   };
 
   useEffect(() => {
-    let alive = true; // 언마운트/요청 꼬임 방지 (setState 경고 방지용)
+    let alive = true;
 
     async function load() {
       setLoading(true);
@@ -40,21 +39,21 @@ function MainPage() {
 
       try {
         const bestData = await fetchProducts({
-          pet_type: pet ?? undefined, // null이면 안 보냄
+          pet_type: pet ?? undefined,
           sort: "views_desc",
           limit: 8,
           page: 1,
         });
+
         const recommendData = await fetchProducts({
-          pet_type: pet ?? undefined, // null이면 안 보냄
+          pet_type: pet ?? undefined,
           sort: "review_count_desc",
           limit: 8,
           page: 1,
-        })
+        });
 
         if (!alive) return;
 
-        // items 안전 처리
         setBestItems(Array.isArray(bestData?.items) ? bestData.items : []);
         setRecommend(Array.isArray(recommendData?.items) ? recommendData.items : []);
       } catch (e) {
@@ -73,29 +72,38 @@ function MainPage() {
     };
   }, [pet]);
 
-
   useEffect(() => {
     (async () => {
       try {
         const data = await fetchMainReviews();
-        setReviews(Array.isArray(data.reviews) ? data.reviews : []);
+        setReviews(Array.isArray(data?.reviews) ? data.reviews : []);
       } catch (e) {
         console.error("리뷰 불러오기 에러", e);
       }
     })();
   }, []);
 
-  // useEffect(() => {async function load() {await fetchNotice();}load();},[]); 랑 같은 의미
+  // ✅ 공지사항 로드 (백: /api/board/notices)
   useEffect(() => {
-    (async () => {
+    let alive = true;
+
+    async function loadNotices() {
       try {
-        const data = await fetchNotice();
-        setNotices(Array.isArray(data.items) ? data.items : []);
-      } catch (e) {
-        console.error("공지사항 불러오기 에러", e);
+        const data = await fetchNotice(); // { items: [...] }
+        if (!alive) return;
+        setNotices(Array.isArray(data?.items) ? data.items : []);
+      } catch (err) {
+        if (!alive) return;
+        console.error("공지사항 로드 실패:", err);
+        setNotices([]);
       }
-    })(); // 함수를 만들자마자 바로 실행
-  }, []); // 처음 한 번만 실행
+    }
+
+    loadNotices();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   return (
     <Container className={styles.container}>
@@ -108,143 +116,196 @@ function MainPage() {
 
       {/* 정상 렌더 */}
       <div className={styles.main}>
-
         {/* 로딩 중 표시 */}
         {loading && (
           <div className="d-flex justify-content-center my-4">
             <Spinner animation="border" />
           </div>
         )}
-          <div>
-            {/* 상단 슬라이더 */}
-            <section className={styles.slider}>
-              <Carousel>
-                <Carousel.Item interval={4000}>
-                  <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner1.jpg`} alt="banner1"></img>
-                </Carousel.Item>
-                <Carousel.Item interval={4000}>
-                  <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner2.jpg`} alt="banner2"></img>
-                </Carousel.Item>
-                <Carousel.Item interval={4000}>
-                  <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner3.jpg`} alt="banner3"></img>
-                </Carousel.Item>
-                <Carousel.Item interval={4000}>
-                  <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner4.jpg`} alt="banner4"></img>
-                </Carousel.Item>
-                <Carousel.Item interval={4000}>
-                  <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner5.jpg`} alt="banner5"></img>
-                </Carousel.Item>
-                <Carousel.Item interval={4000}>
-                  <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner6.jpg`} alt="banner6"></img>
-                </Carousel.Item>
-                <Carousel.Item interval={4000}>
-                  <img className={styles.slider_img} src={`${process.env.PUBLIC_URL}/images/banner/banner7.jpg`} alt="banner7"></img>
-                </Carousel.Item>
-              </Carousel>
-            </section>
 
-            <section className={styles.categorySection}>
-              <button className={`${styles.categoryBox} ${styles.dog}`} onClick={() => setPet("dog")}>
+        <div>
+          {/* 상단 슬라이더 */}
+          <section className={styles.slider}>
+            <Carousel>
+              <Carousel.Item interval={4000}>
                 <img
-                  src={`${process.env.PUBLIC_URL}/images/banner/dog.png`}
-                  alt="강아지"
-                  className={styles.categoryImg}
+                  className={styles.slider_img}
+                  src={`${process.env.PUBLIC_URL}/images/banner/banner1.jpg`}
+                  alt="banner1"
                 />
-                <p className={styles.categoryText}>강아지</p>
-              </button>
-              <button className={`${styles.categoryBox} ${styles.cat}`} onClick={() => setPet("cat")}>
+              </Carousel.Item>
+              <Carousel.Item interval={4000}>
                 <img
-                  src={`${process.env.PUBLIC_URL}/images/banner/cat.png`}
-                  alt="고양이"
-                  className={styles.categoryImg}
+                  className={styles.slider_img}
+                  src={`${process.env.PUBLIC_URL}/images/banner/banner2.jpg`}
+                  alt="banner2"
                 />
-                <p className={styles.categoryText}>고양이</p>
-              </button>
-            </section>
+              </Carousel.Item>
+              <Carousel.Item interval={4000}>
+                <img
+                  className={styles.slider_img}
+                  src={`${process.env.PUBLIC_URL}/images/banner/banner3.jpg`}
+                  alt="banner3"
+                />
+              </Carousel.Item>
+              <Carousel.Item interval={4000}>
+                <img
+                  className={styles.slider_img}
+                  src={`${process.env.PUBLIC_URL}/images/banner/banner4.jpg`}
+                  alt="banner4"
+                />
+              </Carousel.Item>
+              <Carousel.Item interval={4000}>
+                <img
+                  className={styles.slider_img}
+                  src={`${process.env.PUBLIC_URL}/images/banner/banner5.jpg`}
+                  alt="banner5"
+                />
+              </Carousel.Item>
+              <Carousel.Item interval={4000}>
+                <img
+                  className={styles.slider_img}
+                  src={`${process.env.PUBLIC_URL}/images/banner/banner6.jpg`}
+                  alt="banner6"
+                />
+              </Carousel.Item>
+              <Carousel.Item interval={4000}>
+                <img
+                  className={styles.slider_img}
+                  src={`${process.env.PUBLIC_URL}/images/banner/banner7.jpg`}
+                  alt="banner7"
+                />
+              </Carousel.Item>
+            </Carousel>
+          </section>
 
-            <section className={styles.best}>
-              <h3>BEST ITEMS</h3>
-              <div className={styles.bestitems}>
-                {bestItems.map(item => (
-                  <div key={item.id} className={styles.productCard} onClick={() => navigate(`/product/${item.id}`)}>
-                    <img className={styles.productImg} src={getImageSrc(item)} alt={item.title || "상품이미지"} onError={(e) => {
+          <section className={styles.categorySection}>
+            <button
+              className={`${styles.categoryBox} ${styles.dog}`}
+              onClick={() => setPet("dog")}
+            >
+              <img
+                src={`${process.env.PUBLIC_URL}/images/banner/dog.png`}
+                alt="강아지"
+                className={styles.categoryImg}
+              />
+              <p className={styles.categoryText}>강아지</p>
+            </button>
+
+            <button
+              className={`${styles.categoryBox} ${styles.cat}`}
+              onClick={() => setPet("cat")}
+            >
+              <img
+                src={`${process.env.PUBLIC_URL}/images/banner/cat.png`}
+                alt="고양이"
+                className={styles.categoryImg}
+              />
+              <p className={styles.categoryText}>고양이</p>
+            </button>
+          </section>
+
+          <section className={styles.best}>
+            <h3>BEST ITEMS</h3>
+            <div className={styles.bestitems}>
+              {bestItems.map((item) => (
+                <div
+                  key={item.id}
+                  className={styles.productCard}
+                  onClick={() => navigate(`/product/${item.id}`)}
+                >
+                  <img
+                    className={styles.productImg}
+                    src={getImageSrc(item)}
+                    alt={item.title || "상품이미지"}
+                    onError={(e) => {
                       e.currentTarget.src = `${process.env.PUBLIC_URL}/images/no-image.png`;
-                    }}></img>
-                    <p className={styles.productTitle}>{item.title}</p>
-                    <p className={styles.productPrice}>
-                      {Number(item.price || 0).toLocaleString()}원
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <section className={styles.best}>
-              <h3>RECOMMEND ITEMS</h3>
-              <div className={styles.bestitems}>
-                {recommend.map((item) => (
-                  <div
-                    key={item.id}
-                    className={styles.productCard}
-                    onClick={() => navigate(`/product/${item.id}`)}
-                  >
-                    <img
-                      className={styles.productImg}
-                      src={getImageSrc(item)}
-                      alt={item.title || "상품이미지"}
-                      onError={(e) => {
-                        e.currentTarget.src = `${process.env.PUBLIC_URL}/images/no-image.png`
-                      }}
-                    />
-                    <p className={styles.productTitle}>{item.title}</p>
-                    <p className={styles.productPrice}>
-                      {Number(item.price || 0).toLocaleString()}원
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <div className={styles.revnot}>
-              <div className={styles.review}>
-                {reviews.map((r) => (
-                  <div key={r.id} className={styles.card}>
-                    <div className={styles.thumb}>
-                      <img
-                        src={getImageSrc(r)} alt="리뷰이미지" className={styles.revimg} />
-                    </div>
-
-                    <div className={styles.meta}>
-                      <div className={styles.stars}>
-                        {"⭐".repeat(r.rating)}
-                        {"☆".repeat(5 - r.rating)}
-                      </div>
-                      <div className={styles.write}>
-                        <p className={styles.title}>{r.writer || "작성자"}</p>
-                        <p className={styles.date}>{r.date}</p>
-                      </div>
-                      <div className={styles.content}>{r.content}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className={styles.notice}>
-                <h4 className={styles.noticeTitle}>공지사항</h4>
-                <div className={styles.noticeList}>
-                  {notices.map((n) => (
-                    <div key={n.id} className={styles.notItem}>
-                      <span className={styles.notTitle} onClick={() => navigate(`/NoticeDetail/${n.id}`)}>{n.title}</span>
-                      <span className={styles.notDate}>{n.date}</span>
-                    </div>
-                  ))}
+                    }}
+                  />
+                  <p className={styles.productTitle}>{item.title}</p>
+                  <p className={styles.productPrice}>
+                    {Number(item.price || 0).toLocaleString()}원
+                  </p>
                 </div>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.best}>
+            <h3>RECOMMEND ITEMS</h3>
+            <div className={styles.bestitems}>
+              {recommend.map((item) => (
+                <div
+                  key={item.id}
+                  className={styles.productCard}
+                  onClick={() => navigate(`/product/${item.id}`)}
+                >
+                  <img
+                    className={styles.productImg}
+                    src={getImageSrc(item)}
+                    alt={item.title || "상품이미지"}
+                    onError={(e) => {
+                      e.currentTarget.src = `${process.env.PUBLIC_URL}/images/no-image.png`;
+                    }}
+                  />
+                  <p className={styles.productTitle}>{item.title}</p>
+                  <p className={styles.productPrice}>
+                    {Number(item.price || 0).toLocaleString()}원
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <div className={styles.revnot}>
+            <div className={styles.review}>
+              {reviews.map((r) => (
+                <div key={r.id} className={styles.card}>
+                  <div className={styles.thumb}>
+                    <img src={getImageSrc(r)} alt="리뷰이미지" className={styles.revimg} />
+                  </div>
+
+                  <div className={styles.meta}>
+                    <div className={styles.stars}>
+                      {"⭐".repeat(r.rating)}
+                      {"☆".repeat(5 - r.rating)}
+                    </div>
+                    <div className={styles.write}>
+                      <p className={styles.title}>{r.writer || "작성자"}</p>
+                      <p className={styles.date}>{r.date}</p>
+                    </div>
+                    <div className={styles.content}>{r.content}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className={styles.notice}>
+              <h4 className={styles.noticeTitle}>공지사항</h4>
+              <div className={styles.noticeList}>
+                {notices.map((n) => (
+                  <div key={n.id} className={styles.notItem}>
+                    <span
+                      className={styles.notTitle}
+                      onClick={() => navigate(`/Noticeboard/${n.id}`)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") navigate(`/Noticeboard/${n.id}`);
+                      }}
+                    >
+                      {n.title}
+                    </span>
+                    <span className={styles.notDate}>{n.date}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
+        </div>
       </div>
-    </Container >
-  )
-};
+    </Container>
+  );
+}
 
 export default MainPage;
