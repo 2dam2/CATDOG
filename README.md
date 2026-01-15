@@ -49,16 +49,16 @@ JWT 기반 인증을 통해 사용자별 기능을 분리하고,
 ---
 
 ## 🧩 전체 아키텍처
-[React Frontend]
-└─ Axios Client (Interceptor)
-└─ JWT 자동 첨부
-↓
-[Flask REST API]
-├─ Auth / Product / Cart / Order / Board
-├─ JWT 인증 & 권한 제어
-└─ SQLAlchemy ORM
-↓
-[SQLite Database]
+[React Frontend] <br>
+└─ Axios Client (Interceptor) <br>
+└─ JWT 자동 첨부<br>
+↓<br>
+[Flask REST API]<br>
+├─ Auth / Product / Cart / Order / Board<br>
+├─ JWT 인증 & 권한 제어<br>
+└─ SQLAlchemy ORM<br>
+↓<br>
+[SQLite Database]<br>
 
 - 프론트엔드는 UI와 상태 관리에 집중
 - 백엔드는 인증 및 비즈니스 로직 담당
