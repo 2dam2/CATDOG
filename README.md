@@ -48,23 +48,17 @@ JWT 기반 인증을 통해 사용자별 기능을 분리하고,
 
 ## 🛠 기술 스택
 
-### Frontend
-- React
-- Axios
-- React-Bootstrap
+| 영역 | 기술 스택 |
+| --- | --- |
+| Front-end | <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=React&logoColor=fff"/> <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=JavaScript&logoColor=000"/> <img src="https://img.shields.io/badge/reactbootstrap-7952B3?style=flat-square&logo=reactbootstrap&logoColor=white"/> <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=CSS3&logoColor=fff"/> |
+| Back-end | <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=Python&logoColor=white"/> <img src="https://img.shields.io/badge/Flask-000000?style=flat-square&logo=Flask&logoColor=white"/> |
+| Database | <img src="https://img.shields.io/badge/SQLite-4479A1?style=flat-square&logo=SQLite&logoColor=white"/> |
+| Cloud | <img src="https://img.shields.io/badge/huggingface-FFD21E?style=flat-square&logo=huggingface&logoColor=white"/> <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=Docker&logoColor=white"/> |
+| Others | <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white"/> <img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/> <img src="https://img.shields.io/badge/Figma-F24E1E?style=flat-square&logo=figma&logoColor=white"/> |
 
-### Backend
-- Flask
-- SQLAlchemy
-- Flask-JWT-Extended
-
-### Database
-- SQLite (instance 기반)
-
-### Auth
+### 🔐 Auth
 - JWT (Access Token)
-
----
+- Flask-JWT-Extended
 
 ## 🧩 전체 아키텍처
 [React Frontend] <br>
