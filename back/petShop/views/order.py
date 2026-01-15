@@ -149,7 +149,7 @@ def create_order():
                 unit_price=unit_price,
                 product_name=product_name,
                 product_image=product_image,
-                status = "ORDERED"
+                status = "DELIVERED"
             )
             db.session.add(it)
 

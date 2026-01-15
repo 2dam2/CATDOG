@@ -4,16 +4,16 @@ import axios from "axios";
 const client = axios.create({
   // CRA 환경에서는 import.meta.env 대신 process.env.REACT_APP_... 사용
   // .env 파일에 REACT_APP_API_BASE_URL이 있으면 그 값을 쓰고,
-  // 없으면 기본값으로 http://127.0.0.1:5000 사용
-  baseURL: process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:5000",
+  // 없으면 기본값으로 http://localhost:5000 사용
+  baseURL: process.env.REACT_APP_API_BASE_URL || "http://localhost:5000",
 
   // withCredentials는 axios 요청에 쿠키/인증정보를 같이 보내도 된다고
   // 브라우저에 허용하는 옵션
   // 쿠키 기반으로 상품정보/로그인 상태 등을 저장해야 하는 경우 true
   withCredentials: false,
 
-  // 요청이 10초 넘으면 끊어버림 (무한 대기 방지)
-  timeout: 10000,
+  // 요청이 60초 넘으면 끊어버림 (RAG 엔진 대기 시간 확보)
+  timeout: 60000,
   // ✅ 배열 파라미터를 Flask가 받기 좋은 형태로 직렬화
   // category: ["의류","산책용품"]
   // → ?category=의류&category=산책용품
@@ -31,7 +31,7 @@ client.interceptors.request.use(
     // localStorage: 브라우저에 값 저장하는 공간 (새로고침/재시작해도 유지)
     const token = localStorage.getItem("accessToken");
 
-    if (token) {
+    if (token && token !== "undefined" && token !== "null") {
       config.headers = config.headers ?? {};  
       // Bearer 방식: "이 토큰은 Bearer 인증 방식이다"라는 관례적인 표현
       config.headers.Authorization = `Bearer ${token}`;

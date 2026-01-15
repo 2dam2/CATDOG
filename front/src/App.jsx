@@ -35,13 +35,15 @@ import Recent from "./components/Recent";
 import Footer from './components/Footer'; 
 import MainPage from "./pages/MainPage"; 
 import EventPage from "./pages/EventPage"; 
+import EventDetail from "./components/Event/EventDetail"; // ✅ Added EventDetail Import
 import CustomerCenterPage from "./pages/CustomerCenterPage"; 
 import Chatbot from "./components/Chatbot"; 
 import Noticeboard from "./components/Noticeboard";
- import NoticeDetail from "./components/NoticeDetail";
- import EditPost from "./components/EditPost";
+import NoticeDetail from "./components/NoticeDetail";
+import EditPost from "./components/EditPost";
 import Order from "./components/Order";
 import AdminPostForm from "./components/AdminPostForm";
+import SearchPage from "./pages/SearchPage"; // 🦁 Import SearchPage
 
 
 /** ✅ 네비바가 필요한 페이지들의 공통 틀 */
@@ -72,12 +74,14 @@ export default function App() {
 
           {/* 기존 페이지들 */}
           <Route path="category/:pet/:sub?" element={<Category />} />
+          <Route path="/search" element={<SearchPage />} /> {/* 🦁 검색 페이지 */}
           <Route path="product/:id" element={<Product />} />
            <Route path="/write" element={<PostForm />} /> 
           <Route path="find-account" element={<FindAccount />} />
           <Route path="cart" element={<CartPage />} />
           <Route path="order/complete" element={<OrderComplete />} />
           <Route path="/events" element={<EventPage />} /> {/* Navbar의 /events와 매핑 */}
+          <Route path="/events/:id" element={<EventDetail />} /> {/* ✅ 이벤트 상세 페이지 추가 */}
           <Route path="/support" element={<CustomerCenterPage />} /> {/* Navbar의 /support와 매핑 */}
           <Route path="/Noticeboard" element={<Noticeboard />} />
           <Route path="/Noticeboard/:id" element={<NoticeDetail />} />
@@ -85,6 +89,7 @@ export default function App() {
           <Route path="/order/:orderId" element={<Order />} />
 
           <Route path="/AdminPostForm" element={<AdminPostForm />} />
+          <Route path="/AdminPostForm/:id" element={<AdminPostForm />} /> {/* 🦁 수정 모드 라우트 추가 */}
           <Route path="/view" element={<Recent />} />
 
 

@@ -30,48 +30,6 @@
   padding: 20px 0 40px;
 }
 
-/* 검색 영역 */
-.searchArea {
-  width: 100%;
-  height: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  padding: 0 20px;
-}
-
-.searchInput {
-  width: 850px;
-  height: 48px;
-  padding: 0 14px;
-  border-radius: 8px;
-  border: 1px solid #dcdfe6;
-  font-size: 15px;
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: #4a7cff;
-  box-shadow: 0 0 0 2px rgba(74, 124, 255, 0.15);
-}
-
-.searchButton {
-  width: 120px;
-  height: 48px;
-  border-radius: 8px;
-  border: none;
-  background: #4a7cff;
-  color: #fff;
-  font-size: 15px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.searchButton:hover {
-  background: #3a68e0;
-}
-
 /* 제목 영역 */
 .titleArea {
   width: 100%;
@@ -89,7 +47,7 @@
   font-weight: 700;
 }
 
-/* ✅ 글쓰기 버튼 (요청한 색상) */
+/* 글쓰기 버튼 */
 .writeButton {
   width: 90px;
   height: 38px;
@@ -104,27 +62,6 @@
 
 .writeButton:hover {
   background: rgb(140, 175, 215);
-}
-
-/* 필터 */
-.filterArea {
-  width: 100%;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  padding: 0 30px;
-  font-size: 14px;
-  color: #666;
-}
-
-.filterArea span {
-  margin-right: 14px;
-  cursor: pointer;
-  position: relative;
-}
-
-.filterArea span:hover {
-  color: #4a7cff;
 }
 
 /* 테이블 래퍼 */
@@ -152,6 +89,7 @@
   font-weight: 600;
   color: #555;
   border-bottom: 1px solid #dfe3e8;
+  text-align: center;
 }
 
 .table td {
@@ -164,8 +102,17 @@
   text-overflow: ellipsis;
 }
 
+/* 문의유형(1열) 폭 */
+.table th:nth-child(1),
+.table td:nth-child(1) {
+  width: 140px;
+}
+
+/* 제목(2열) 왼쪽 정렬 + 여백 */
+.table th:nth-child(2),
 .table td:nth-child(2) {
   text-align: left;
+  padding-left: 28px;
 }
 
 .table tbody tr:hover {
@@ -173,70 +120,35 @@
 }
 
 /* 페이지네이션 */
-.pagination {
-  margin-top: 40px;
-  text-align: center;
-}
-
-.pagination button {
-  min-width: 36px;
-  height: 36px;
-  margin: 0 4px;
-  border-radius: 8px;
-  border: 1px solid #dcdfe6;
-  background: #fff;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.pagination button:hover {
-  background: #4a7cff;
-  color: #fff;
-  border-color: #4a7cff;
-}
-
-/* 글쓰기 영역 */
-.writeArea {
-  margin: 30px 20px 0;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #e1e4e8;
-  background: #fafbfc;
-}
-
-.writeInput {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #dcdfe6;
-  font-size: 14px;
-}
-
-.writeInput:focus {
-  outline: none;
-  border-color: #4a7cff;
-}
-
-.writeButtons {
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.writeButtons button {
-  min-width: 80px;
-  height: 36px;
-  border-radius: 8px;
+.category_pagination :global(.page-link) {
   border: none;
-  cursor: pointer;
+  color: #000;
+  outline: 3px none #fff;
 }
 
-.writeButtons button:first-child {
-  background: #4a7cff;
-  color: #fff;
+.category_pagination :global(.page-item.active .page-link) {
+  background-color: #f2f2f2;
+  font-weight: 600;
 }
 
-.writeButtons button:last-child {
-  background: #e0e0e0;
+.category_pagination :global(.page-link:hover) {
+  background-color: #f2f2f2;
+  color: #000;
+}
+
+.category_pagination :global(.page-item.disabled) {
+  display: none;
+}
+
+
+.table th:nth-child(2) {
+  text-align: center;
+  padding-left: 8px;   /* 기본값 유지 */
+  padding-right: 8px;  /* 기본값 유지 */
+}
+
+/* 내용(제목) - 왼쪽 + 살짝 안쪽 */
+.table td:nth-child(2) {
+  text-align: left;
+  padding-left: 60px;  /* ⭐ 스샷 느낌: 20~28px 사이 추천 */
 }

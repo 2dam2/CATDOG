@@ -1,97 +1,107 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import styles from "./EditPost.module.css";
-import client from "../api/client"; // ✅ API 통신을 위한 client 추가
+import { fetchBoardDetail, updateBoard } from "../api/boardApi"; // ✅ API 함수 임포트 추가
 
 export default function EditPost() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  // 📌 수정할 게시글 상태
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [category, setCategory] = useState(""); // 🦁 카테고리 저장
+  
+  // 🦁 이벤트 기간
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const [loading, setLoading] = useState(true);
 
-  // ✅ 현재 수정 대상이 '이벤트'인지 '일반게시글'인지 판별
-  // URL 주소에 'events'가 포함되어 있는지 확인하거나, 
-  // 여기서는 라우팅 구조상 Noticeboard 하위에 있으므로 기본은 게시글로 보되,
-  // 실패 시 이벤트를 찾는 방식으로 견고하게 짤 수 있음.
-  const isEvent = location.pathname.includes('/events'); 
-
+  // ✅ 데이터 불러오기
   useEffect(() => {
-    async function loadData() {
-      setLoading(true);
+    async function loadPost() {
       try {
-        // 1. 이벤트인지 게시판인지에 따라 다른 API 호출
-        const endpoint = isEvent ? `/api/event/${id}` : `/api/board/${id}`;
-        const res = await client.get(endpoint);
+        // 공통 상세 조회 API 사용 (이벤트/게시판 통합)
+        const data = await fetchBoardDetail(id);
         
-        setTitle(res.data.title);
-        setContent(res.data.content);
+        setTitle(data.title);
+        setContent(data.content);
+        setCategory(data.category);
+        
+        // 🦁 이벤트 기간 로드
+        if (data.category === "이벤트") {
+            setStartDate(data.start_date || "");
+            setEndDate(data.end_date || "");
+        }
+        
       } catch (err) {
-        console.error("데이터 로딩 실패:", err);
-        alert("게시글을 불러올 수 없다냥!");
+        console.error(err);
+        alert("게시글 정보를 불러오지 못했습니다.");
         navigate(-1);
       } finally {
         setLoading(false);
       }
     }
-    if (id) loadData();
-  }, [id, isEvent, navigate]);
+    loadPost();
+  }, [id, navigate]);
 
-  /**
-   * 📌 저장 버튼 클릭 시 실행
-   * - 실제 백엔드 API를 호출하여 DB 업데이트
-   */
+  // ✅ 수정 저장
   const handleSave = async () => {
-    if (!title.trim() || !content.trim()) {
-      alert("제목과 내용을 모두 채워달라냥!");
-      return;
-    }
+    if (!title.trim() || !content.trim()) return;
 
     try {
-      const endpoint = isEvent ? `/api/event/${id}` : `/api/board/${id}`;
-      // 서버 규격에 맞게 PUT 요청 (기존 event.py에 구현한 update_event 등 활용)
-      await client.put(endpoint, { title, content });
+      // 🦁 이벤트/게시판 공통 수정 API 사용
+      const payload = { title, content };
       
-      alert("수정이 완료되었다냥! ✨");
-      navigate(-1); // 이전 상세 페이지로 복귀
+      if (category === "이벤트") {
+          payload.start_date = startDate;
+          payload.end_date = endDate;
+      }
+      
+      await updateBoard(id, payload);
+
+      alert("수정되었습니다.");
+      navigate(-1); // 이전 페이지(상세)로 복귀
     } catch (err) {
-      alert("수정에 실패했다냥... 다시 시도해달라냥!");
+      console.error(err);
+      alert("수정 실패: " + (err.response?.data?.msg || err.message));
     }
   };
 
-  if (loading) return <div className={styles.loading}>정보를 가져오는 중이다냥...</div>;
+  if (loading) return <div>로딩 중...</div>;
 
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <h2 className={styles.title}>{isEvent ? "이벤트 수정" : "게시글 수정"}</h2>
+    <div className={styles.container}>
+      <h2>게시글 수정</h2>
+      <div className={styles.form}>
+        <div className={styles.row}>
+          <label>카테고리</label>
+          <input value={category} disabled style={{backgroundColor: '#f0f0f0'}} />
+        </div>
+        
+        {/* 🦁 이벤트 기간 수정 */}
+        {category === "이벤트" && (
+            <div className={styles.row}>
+                <label>이벤트 기간</label>
+                <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
+                    <input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)} />
+                    <span>~</span>
+                    <input type="date" value={endDate} onChange={e=>setEndDate(e.target.value)} />
+                </div>
+            </div>
+        )}
 
-        <div className={styles.field}>
+        <div className={styles.row}>
           <label>제목</label>
-          <input
-            type="text"
-            placeholder="제목을 입력해라냥!" // ✅ 요청하신 플레이스홀더 적용
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
-
-        <div className={styles.field}>
-          <label>내용</label>
-          <textarea
-            rows="10"
-            placeholder="내용을 상세히 적어달라냥!" // ✅ 요청하신 플레이스홀더 적용
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+        <div className={styles.editor}>
+          <textarea value={content} onChange={(e) => setContent(e.target.value)} />
         </div>
-
-        <div className={styles.buttonArea}>
-          <button className={styles.saveBtn} onClick={handleSave}>저장하기</button>
-          <button className={styles.cancelBtn} onClick={() => navigate(-1)}>취소</button>
+        
+        <div className={styles.actions}>
+          <button onClick={handleSave} className={styles.saveBtn}>저장</button>
+          <button onClick={() => navigate(-1)} className={styles.cancelBtn}>취소</button>
         </div>
       </div>
     </div>
